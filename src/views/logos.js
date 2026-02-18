@@ -154,7 +154,8 @@ export function initLogos() {
       const word = document.getElementById('logos-word').value.trim();
       if (!word) return;
       const studentId = getStudentId();
-      addToolEntry(session.code, 'logos', { word, studentId });
+      const student = localStorage.getItem('studentName');
+      addToolEntry(session.code, 'logos', { word, studentId, student });
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   }

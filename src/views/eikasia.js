@@ -127,7 +127,8 @@ export function initEikasia() {
       const hypothesis = document.getElementById('eikasia-hypothesis').value.trim();
       if (!hypothesis) return;
       const studentId = getStudentId();
-      addToolEntry(session.code, 'eikasia', { hypothesis, studentId });
+      const student = localStorage.getItem('studentName');
+      addToolEntry(session.code, 'eikasia', { hypothesis, studentId, student });
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   }

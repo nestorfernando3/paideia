@@ -145,7 +145,8 @@ export function initMethexis() {
       if (!concept || !connection || !reason) return;
 
       const studentId = getStudentId();
-      addToolEntry(session.code, 'methexis', { concept, connection, reason, studentId });
+      const student = localStorage.getItem('studentName');
+      addToolEntry(session.code, 'methexis', { concept, connection, reason, studentId, student });
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   }

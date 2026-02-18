@@ -235,7 +235,8 @@ export function initGnosis() {
       const session = getCurrentSession();
       if (!session) return;
       const studentId = getStudentId();
-      addToolEntry(session.code, 'gnosis', { phase: 'before', value: parseInt(slider.value), studentId });
+      const student = localStorage.getItem('studentName');
+      addToolEntry(session.code, 'gnosis', { phase: 'before', value: parseInt(slider.value), studentId, student });
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   }
@@ -254,7 +255,8 @@ export function initGnosis() {
       const session = getCurrentSession();
       if (!session) return;
       const studentId = getStudentId();
-      addToolEntry(session.code, 'gnosis', { phase: 'after', value: parseInt(sliderAfter.value), studentId });
+      const student = localStorage.getItem('studentName');
+      addToolEntry(session.code, 'gnosis', { phase: 'after', value: parseInt(sliderAfter.value), studentId, student });
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   }

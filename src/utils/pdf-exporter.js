@@ -29,9 +29,6 @@ export async function exportSessionPDF(session, toolsData) {
     const margin = 20;
     let y = margin;
 
-    // --- Background (Optional: full page background color is hard in basic jspdf without rect) ---
-    // We will keep white background for printability, but use colors in elements.
-
     // --- Header ---
     doc.setFont(THEME.fonts.heading, 'bold');
     doc.setFontSize(26);
@@ -108,59 +105,91 @@ export async function exportSessionPDF(session, toolsData) {
         let body = [];
 
         const entriesArray = Array.isArray(entries) ? entries : Object.values(entries);
+        const getStudent = (e) => e.student || 'Anónimo';
 
         if (key === 'gnosis') {
-            head = [['Estudiante', 'Respuesta']];
-            body = entriesArray.map(e => [e.student, e.answer]);
+            head = [['Estudiante', 'Fase', 'Valoración']];
+            body = entriesArray.map(e => [
+                getStudent(e),
+                e.phase === 'before' ? 'Inicial' : 'Final',
+                (e.value || '-') + '/5'
+            ]);
         } else if (key === 'noesis') {
             head = [['Estudiante', '¿Entiende?']];
-            body = entriesArray.map(e => [e.student, e.answer === 'yes' ? 'Sí' : (e.answer === 'no' ? 'No' : 'Más o menos')]);
+            body = entriesArray.map(e => [
+                getStudent(e),
+                e.answer === 'yes' ? 'Sí' : (e.answer === 'no' ? 'No' : 'Más o menos')
+            ]);
         } else if (key === 'eikasia') {
             head = [['Estudiante', 'Hipótesis']];
-            body = entriesArray.map(e => [e.student, e.content]);
+            body = entriesArray.map(e => [getStudent(e), e.hypothesis || '-']);
         } else if (key === 'aporia') {
+            const doubts = entriesArray.filter(e => e.type === 'doubt');
+            if (doubts.length === 0) {
+                // If no doubts, maybe show status summary? For now, skip table if empty or show empty message
+                body = []; // Logic below handles empty body
+            }
             head = [['Estudiante', 'Duda']];
-            body = entriesArray.map(e => [e.student, e.content]);
+            body = doubts.map(e => [getStudent(e), e.text || '-']);
         } else if (key === 'logos') {
             head = [['Estudiante', 'Palabra Clave']];
-            body = entriesArray.map(e => [e.student, e.content]);
+            body = entriesArray.map(e => [getStudent(e), e.word || '-']);
         } else if (key === 'methexis') {
             head = [['Estudiante', 'Concepto', 'Conexión', 'Razón']];
-            body = entriesArray.map(e => [e.student, e.concept, e.connection, e.reason]);
+            body = entriesArray.map(e => [
+                getStudent(e),
+                e.concept || '-',
+                e.connection || '-',
+                e.reason || '-'
+            ]);
         } else if (key === 'anamnesis') {
             head = [['Estudiante', 'Aprendió', 'Duda', 'Conexión']];
-            body = entriesArray.map(e => [e.student, e.learned, e.wonder, e.connection]);
+            body = entriesArray.map(e => [
+                getStudent(e),
+                e.learned || '-',
+                e.wonder || '-',
+                e.connected || '-'
+            ]);
         }
 
-        // Generate Table
-        doc.autoTable({
-            startY: y + 3,
-            head: head,
-            body: body,
-            theme: 'grid',
-            headStyles: {
-                fillColor: THEME.colors.aegean,
-                textColor: THEME.colors.white,
-                font: THEME.fonts.heading,
-                fontStyle: 'bold'
-            },
-            bodyStyles: {
-                textColor: THEME.colors.obsidian,
-                font: THEME.fonts.body
-            },
-            alternateRowStyles: {
-                fillColor: THEME.colors.marble
-            },
-            styles: {
-                fontSize: 10,
-                cellPadding: 4,
-                lineColor: THEME.colors.gold,
-                lineWidth: 0.1
-            },
-            margin: { left: margin, right: margin }
-        });
+        if (body.length > 0) {
+            // Generate Table
+            doc.autoTable({
+                startY: y + 3,
+                head: head,
+                body: body,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: THEME.colors.aegean,
+                    textColor: THEME.colors.white,
+                    font: THEME.fonts.heading,
+                    fontStyle: 'bold'
+                },
+                bodyStyles: {
+                    textColor: THEME.colors.obsidian,
+                    font: THEME.fonts.body
+                },
+                alternateRowStyles: {
+                    fillColor: THEME.colors.marble
+                },
+                styles: {
+                    fontSize: 10,
+                    cellPadding: 4,
+                    lineColor: THEME.colors.gold,
+                    lineWidth: 0.1
+                },
+                margin: { left: margin, right: margin }
+            });
 
-        y = doc.lastAutoTable.finalY + 15;
+            y = doc.lastAutoTable.finalY + 15;
+        } else {
+            // Optional: Draw text saying "No entries"
+            doc.setFont(THEME.fonts.body, 'italic');
+            doc.setFontSize(10);
+            doc.setTextColor(THEME.colors.textSoft);
+            doc.text('(Sin entradas registradas)', margin, y + 8);
+            y += 15;
+        }
     });
 
     // --- Footer ---

@@ -153,7 +153,8 @@ export function initAporia() {
   const okBtn = document.getElementById('aporia-ok');
   if (okBtn && !okBtn.disabled) {
     okBtn.addEventListener('click', () => {
-      addToolEntry(session.code, 'aporia', { type: 'status', status: 'ok', studentId });
+      const student = localStorage.getItem('studentName');
+      addToolEntry(session.code, 'aporia', { type: 'status', status: 'ok', studentId, student });
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   }
@@ -162,7 +163,8 @@ export function initAporia() {
   const lostBtn = document.getElementById('aporia-lost');
   if (lostBtn && !lostBtn.disabled) {
     lostBtn.addEventListener('click', () => {
-      addToolEntry(session.code, 'aporia', { type: 'status', status: 'lost', studentId });
+      const student = localStorage.getItem('studentName');
+      addToolEntry(session.code, 'aporia', { type: 'status', status: 'lost', studentId, student });
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   }
@@ -174,7 +176,8 @@ export function initAporia() {
     const submitDoubt = () => {
       const text = textInput.value.trim();
       if (!text) return;
-      addToolEntry(session.code, 'aporia', { type: 'doubt', text, votes: 0, studentId });
+      const student = localStorage.getItem('studentName');
+      addToolEntry(session.code, 'aporia', { type: 'doubt', text, votes: 0, studentId, student });
       textInput.value = '';
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     };

@@ -160,7 +160,8 @@ export function initAnamnesis() {
       if (!learned || !wonder || !connected) return;
 
       const studentId = getStudentId();
-      addToolEntry(session.code, 'anamnesis', { learned, wonder, connected, studentId });
+      const student = localStorage.getItem('studentName');
+      addToolEntry(session.code, 'anamnesis', { learned, wonder, connected, studentId, student });
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   }

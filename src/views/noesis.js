@@ -160,7 +160,8 @@ export function initNoesis() {
     btn.addEventListener('click', () => {
       const answer = btn.getAttribute('data-answer');
       const studentId = getStudentId();
-      addToolEntry(session.code, 'noesis', { answer, studentId });
+      const student = localStorage.getItem('studentName');
+      addToolEntry(session.code, 'noesis', { answer, studentId, student });
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   });
