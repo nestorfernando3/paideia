@@ -161,7 +161,13 @@ export function initLogos() {
 
   const refreshBtn = document.getElementById('logos-refresh');
   if (refreshBtn) {
-    refreshBtn.addEventListener('click', () => {
+    refreshBtn.addEventListener('click', async () => {
+      refreshBtn.textContent = '⏳ Cargando...';
+      refreshBtn.disabled = true;
+      const session = getCurrentSession();
+      if (session) {
+        await getToolEntriesAsync(session.code, 'logos');
+      }
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   }

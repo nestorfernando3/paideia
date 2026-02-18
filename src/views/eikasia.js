@@ -134,7 +134,13 @@ export function initEikasia() {
 
   const refreshBtn = document.getElementById('eikasia-refresh');
   if (refreshBtn) {
-    refreshBtn.addEventListener('click', () => {
+    refreshBtn.addEventListener('click', async () => {
+      refreshBtn.textContent = '⏳ Cargando...';
+      refreshBtn.disabled = true;
+      const session = getCurrentSession();
+      if (session) {
+        await getToolEntriesAsync(session.code, 'eikasia');
+      }
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   }

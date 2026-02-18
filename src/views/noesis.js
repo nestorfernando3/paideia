@@ -167,7 +167,13 @@ export function initNoesis() {
 
   const refreshBtn = document.getElementById('noesis-refresh');
   if (refreshBtn) {
-    refreshBtn.addEventListener('click', () => {
+    refreshBtn.addEventListener('click', async () => {
+      refreshBtn.textContent = '⏳ Cargando...';
+      refreshBtn.disabled = true;
+      const session = getCurrentSession();
+      if (session) {
+        await getToolEntriesAsync(session.code, 'noesis');
+      }
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   }

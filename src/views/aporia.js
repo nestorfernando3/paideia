@@ -208,7 +208,13 @@ export function initAporia() {
   // Refresh (teacher)
   const refreshBtn = document.getElementById('aporia-refresh');
   if (refreshBtn) {
-    refreshBtn.addEventListener('click', () => {
+    refreshBtn.addEventListener('click', async () => {
+      refreshBtn.textContent = '⏳ Cargando...';
+      refreshBtn.disabled = true;
+      const session = getCurrentSession();
+      if (session) {
+        await getToolEntriesAsync(session.code, 'aporia');
+      }
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   }

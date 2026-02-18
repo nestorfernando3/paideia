@@ -152,7 +152,13 @@ export function initMethexis() {
 
   const refreshBtn = document.getElementById('methexis-refresh');
   if (refreshBtn) {
-    refreshBtn.addEventListener('click', () => {
+    refreshBtn.addEventListener('click', async () => {
+      refreshBtn.textContent = '⏳ Cargando...';
+      refreshBtn.disabled = true;
+      const session = getCurrentSession();
+      if (session) {
+        await getToolEntriesAsync(session.code, 'methexis');
+      }
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   }
