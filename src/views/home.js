@@ -94,6 +94,12 @@ export function renderHome() {
             🎓 Guía del Estudiante
           </a>
         </div>
+        
+        <div style="text-align: center; margin-top: var(--space-lg);">
+            <a href="#/teacher-join" style="color: var(--obsidian-soft); font-size: var(--text-xs); text-decoration: underline;">
+                ¿Eres docente? Reúnete a tu sesión
+            </a>
+        </div>
       </div>
 
       <div class="divider--short divider"></div>

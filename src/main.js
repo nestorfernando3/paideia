@@ -16,6 +16,7 @@ import { renderLogos, initLogos } from './views/logos.js';
 import { renderAnamnesis, initAnamnesis } from './views/anamnesis.js';
 import { renderGuiaDocente, initGuiaDocente } from './views/guia-docente.js';
 import { renderGuiaEstudiante, initGuiaEstudiante } from './views/guia-estudiante.js';
+import { renderTeacherJoin, initTeacherJoin } from './views/teacherJoin.js';
 
 const app = document.getElementById('app');
 
@@ -24,6 +25,7 @@ const routes = {
     '/': { render: renderHome, init: initHome },
     '/new-session': { render: renderNewSession, init: initNewSession },
     '/join': { render: renderStudentJoin, init: initStudentJoin },
+    '/teacher-join': { render: renderTeacherJoin, init: initTeacherJoin },
     '/guia-docente': { render: renderGuiaDocente, init: initGuiaDocente },
     '/guia-estudiante': { render: renderGuiaEstudiante, init: initGuiaEstudiante },
 };
