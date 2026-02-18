@@ -6,7 +6,7 @@
 import { renderHeader } from '../components/header.js';
 import { getToolById } from '../components/toolCard.js';
 import { getCurrentSession, isTeacher, getStudentId } from '../utils/session.js';
-import { addToolEntry, getToolEntries } from '../utils/storage.js';
+import { addToolEntry, getToolEntries, getToolEntriesAsync } from '../utils/storage.js';
 
 const tool = getToolById('noesis');
 

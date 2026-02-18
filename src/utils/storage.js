@@ -1,11 +1,14 @@
 // ==========================================================================
 // PAIDEIA — Storage Utility
-// Persistencia en localStorage
+// Persistencia híbrida: Firebase (nube) + localStorage (fallback)
 // ==========================================================================
+
+import { isFirebaseReady, db, ref, set, get, update, child } from './firebase.js';
 
 const STORAGE_KEY = 'paideia_data';
 
-function getAll() {
+// ── Local Storage helpers ─────────────────────────────────────────────────
+function getLocal() {
     try {
         const data = localStorage.getItem(STORAGE_KEY);
         return data ? JSON.parse(data) : { sessions: {} };
@@ -14,48 +17,110 @@ function getAll() {
     }
 }
 
-function saveAll(data) {
+function saveLocal(data) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
+// ── Firebase helpers ──────────────────────────────────────────────────────
+async function fbGet(path) {
+    try {
+        const snapshot = await get(ref(db, path));
+        return snapshot.exists() ? snapshot.val() : null;
+    } catch (err) {
+        console.warn('Firebase read failed:', err);
+        return null;
+    }
+}
+
+async function fbSet(path, value) {
+    try {
+        await set(ref(db, path), value);
+    } catch (err) {
+        console.warn('Firebase write failed:', err);
+    }
+}
+
+async function fbUpdate(path, updates) {
+    try {
+        await update(ref(db, path), updates);
+    } catch (err) {
+        console.warn('Firebase update failed:', err);
+    }
+}
+
+// ── Public API (all functions work both sync and async) ───────────────────
+
 export function getSessions() {
-    return getAll().sessions;
+    return getLocal().sessions;
 }
 
 export function getSession(code) {
-    return getAll().sessions[code] || null;
+    return getLocal().sessions[code] || null;
+}
+
+// Async version that checks Firebase first, then falls back to local
+export async function getSessionAsync(code) {
+    if (isFirebaseReady()) {
+        const session = await fbGet(`sessions/${code}`);
+        if (session) {
+            // Update local cache
+            const data = getLocal();
+            data.sessions[code] = session;
+            saveLocal(data);
+            return session;
+        }
+    }
+    return getLocal().sessions[code] || null;
 }
 
 export function createSession(session) {
-    const data = getAll();
+    // Save locally first (synchronous)
+    const data = getLocal();
     data.sessions[session.code] = session;
-    saveAll(data);
+    saveLocal(data);
+
+    // Then sync to Firebase (async, fire-and-forget)
+    if (isFirebaseReady()) {
+        fbSet(`sessions/${session.code}`, session);
+    }
+
     return session;
 }
 
 export function updateSession(code, updates) {
-    const data = getAll();
+    const data = getLocal();
     if (data.sessions[code]) {
         data.sessions[code] = { ...data.sessions[code], ...updates };
-        saveAll(data);
+        saveLocal(data);
+
+        if (isFirebaseReady()) {
+            fbUpdate(`sessions/${code}`, updates);
+        }
     }
     return data.sessions[code];
 }
 
 export function addToolEntry(code, toolName, entry) {
-    const data = getAll();
+    const data = getLocal();
     const session = data.sessions[code];
     if (!session) return;
 
     if (!session.tools) session.tools = {};
     if (!session.tools[toolName]) session.tools[toolName] = [];
 
-    session.tools[toolName].push({
+    const fullEntry = {
         ...entry,
         timestamp: new Date().toISOString(),
-    });
+    };
 
-    saveAll(data);
+    session.tools[toolName].push(fullEntry);
+    saveLocal(data);
+
+    // Sync to Firebase
+    if (isFirebaseReady()) {
+        fbSet(`sessions/${code}/tools/${toolName}`, session.tools[toolName]);
+    }
+
     return session.tools[toolName];
 }
 
@@ -65,9 +130,26 @@ export function getToolEntries(code, toolName) {
     return session.tools[toolName] || [];
 }
 
-// Update a specific entry in a tool's data by index
+// Async version that fetches from Firebase
+export async function getToolEntriesAsync(code, toolName) {
+    if (isFirebaseReady()) {
+        const entries = await fbGet(`sessions/${code}/tools/${toolName}`);
+        if (entries) {
+            // Update local cache
+            const data = getLocal();
+            if (data.sessions[code]) {
+                if (!data.sessions[code].tools) data.sessions[code].tools = {};
+                data.sessions[code].tools[toolName] = entries;
+                saveLocal(data);
+            }
+            return Array.isArray(entries) ? entries : Object.values(entries);
+        }
+    }
+    return getToolEntries(code, toolName);
+}
+
 export function updateToolEntry(code, toolName, index, updates) {
-    const data = getAll();
+    const data = getLocal();
     const session = data.sessions[code];
     if (!session || !session.tools || !session.tools[toolName]) return;
 
@@ -76,7 +158,11 @@ export function updateToolEntry(code, toolName, index, updates) {
             ...session.tools[toolName][index],
             ...updates,
         };
-        saveAll(data);
+        saveLocal(data);
+
+        if (isFirebaseReady()) {
+            fbSet(`sessions/${code}/tools/${toolName}/${index}`, session.tools[toolName][index]);
+        }
     }
 }
 

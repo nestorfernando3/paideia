@@ -4,7 +4,7 @@
 // ==========================================================================
 
 import { renderHeader } from '../components/header.js';
-import { joinSession, setCurrentSession, setStudentName, getStudentId } from '../utils/session.js';
+import { joinSessionAsync, setCurrentSession, setStudentName, getStudentId } from '../utils/session.js';
 
 export function renderStudentJoin() {
   return `
@@ -37,12 +37,17 @@ export function renderStudentJoin() {
             Sesión no encontrada. Verifica el código e intenta de nuevo.
           </div>
 
+          <div id="join-loading" style="display: none; text-align: center; padding: var(--space-md);">
+            <span style="font-size: var(--text-lg);">⏳</span>
+            <p style="font-size: var(--text-sm); color: var(--obsidian-soft);">Buscando sesión...</p>
+          </div>
+
           <div class="input-group">
             <label for="student-name">Tu nombre (opcional)</label>
             <input type="text" id="student-name" class="input" placeholder="Anónimo" />
           </div>
 
-          <button type="submit" class="btn btn--gold btn--lg btn--full">
+          <button type="submit" class="btn btn--gold btn--lg btn--full" id="join-btn">
             Entrar a la sesión
           </button>
 
@@ -61,36 +66,48 @@ export function initStudentJoin() {
   const form = document.getElementById('join-form');
   if (!form) return;
 
-  // Auto-focus code input
   const codeInput = document.getElementById('code');
   if (codeInput) {
     codeInput.focus();
-    // Auto-uppercase as they type
     codeInput.addEventListener('input', () => {
       codeInput.value = codeInput.value.toUpperCase();
     });
   }
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const code = document.getElementById('code').value.trim().toUpperCase();
     const name = document.getElementById('student-name').value.trim() || 'Anónimo';
 
-    const session = joinSession(code);
+    // Show loading
+    const loadingEl = document.getElementById('join-loading');
+    const errorEl = document.getElementById('join-error');
+    const joinBtn = document.getElementById('join-btn');
+
+    errorEl.style.display = 'none';
+    loadingEl.style.display = 'block';
+    joinBtn.disabled = true;
+    joinBtn.textContent = 'Buscando...';
+
+    // Use async version that checks Firebase first
+    const session = await joinSessionAsync(code);
+
+    loadingEl.style.display = 'none';
+    joinBtn.disabled = false;
+    joinBtn.textContent = 'Entrar a la sesión';
+
     if (!session) {
-      const errorEl = document.getElementById('join-error');
       errorEl.style.display = 'flex';
-      // Shake animation
       errorEl.classList.remove('shake');
-      void errorEl.offsetWidth; // trigger reflow
+      void errorEl.offsetWidth;
       errorEl.classList.add('shake');
       return;
     }
 
-    document.getElementById('join-error').style.display = 'none';
+    errorEl.style.display = 'none';
     setCurrentSession(session, 'student');
     setStudentName(name);
-    getStudentId(); // Generate student ID
+    getStudentId();
     window.location.hash = `/session/${code}`;
   });
 }

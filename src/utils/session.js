@@ -3,7 +3,7 @@
 // Gestión de sesiones de clase
 // ==========================================================================
 
-import { createSession, getSession, updateSession } from './storage.js';
+import { createSession, getSession, updateSession, getSessionAsync } from './storage.js';
 
 // Generate a 4-letter Greek-themed code
 const GREEK_LETTERS = 'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ';
@@ -38,8 +38,16 @@ export function startSession(topic, activeTools) {
     return createSession(session);
 }
 
+// Synchronous join (local only — for fallback)
 export function joinSession(code) {
     const session = getSession(code.toUpperCase());
+    if (!session || !session.active) return null;
+    return session;
+}
+
+// Async join — checks Firebase first, then local fallback
+export async function joinSessionAsync(code) {
+    const session = await getSessionAsync(code.toUpperCase());
     if (!session || !session.active) return null;
     return session;
 }
@@ -49,8 +57,6 @@ export function endSession(code) {
 }
 
 // ── Persistent session state ──────────────────────────────────────────────
-// Use sessionStorage so it survives page refresh but not tab close
-
 const SESSION_KEY = 'paideia_current_session';
 const ROLE_KEY = 'paideia_current_role';
 const STUDENT_NAME_KEY = 'paideia_student_name';
@@ -66,7 +72,7 @@ export function getCurrentSession() {
         const data = sessionStorage.getItem(SESSION_KEY);
         if (!data) return null;
         const session = JSON.parse(data);
-        // Always refresh from localStorage for latest data
+        // Refresh from localStorage for latest data
         const fresh = getSession(session.code);
         if (fresh) {
             sessionStorage.setItem(SESSION_KEY, JSON.stringify(fresh));
@@ -102,7 +108,6 @@ export function getStudentName() {
     return sessionStorage.getItem(STUDENT_NAME_KEY) || 'Anónimo';
 }
 
-// Generate a unique student ID per session tab
 export function getStudentId() {
     let id = sessionStorage.getItem(STUDENT_ID_KEY);
     if (!id) {

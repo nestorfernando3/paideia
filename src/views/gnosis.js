@@ -6,7 +6,7 @@
 import { renderHeader } from '../components/header.js';
 import { getToolById } from '../components/toolCard.js';
 import { getCurrentSession, isTeacher, getStudentId } from '../utils/session.js';
-import { addToolEntry, getToolEntries } from '../utils/storage.js';
+import { addToolEntry, getToolEntries, getToolEntriesAsync } from '../utils/storage.js';
 
 const tool = getToolById('gnosis');
 
@@ -150,11 +150,9 @@ function renderGnosisTeacher(session) {
     </div>
     ` : ''}
 
-    ${beforeEntries.length > 0 ? `
     <button class="btn btn--ghost btn--full" id="gnosis-refresh" style="margin-top: var(--space-lg);">
       ↻ Actualizar datos
     </button>
-    ` : ''}
   `;
 
   return renderToolLayout(bodyHtml);
@@ -238,7 +236,6 @@ export function initGnosis() {
       if (!session) return;
       const studentId = getStudentId();
       addToolEntry(session.code, 'gnosis', { phase: 'before', value: parseInt(slider.value), studentId });
-      // Re-render
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   }
@@ -262,11 +259,19 @@ export function initGnosis() {
     });
   }
 
-  // Refresh button (teacher)
+  // Refresh button (teacher) — async Firebase fetch
   const refreshBtn = document.getElementById('gnosis-refresh');
   if (refreshBtn) {
-    refreshBtn.addEventListener('click', () => {
+    refreshBtn.addEventListener('click', async () => {
+      refreshBtn.textContent = '⏳ Cargando...';
+      refreshBtn.disabled = true;
+      const session = getCurrentSession();
+      if (session) {
+        await getToolEntriesAsync(session.code, 'gnosis');
+      }
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
   }
 }
+
+
