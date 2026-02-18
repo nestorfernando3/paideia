@@ -41,6 +41,11 @@
 - **localStorage** + **sessionStorage** — Persistencia local
 - **QR Code** — Generación de códigos QR para compartir sesiones
 - **GitHub Actions** — CI/CD automático con GitHub Pages
+- **jsPDF + AutoTable** — Generación de reportes PDF en cliente
+
+## ✨ Características Nuevas (v1.1)
+
+- **📄 Exportación PDF**: Descarga reportes detallados de la sesión con un solo clic, incluyendo todas las respuestas y dudas, con un diseño profesional listo para imprimir o archivar.
 
 ## 📦 Desarrollo Local
 
