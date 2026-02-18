@@ -1,0 +1,207 @@
+/* ==========================================================================
+   PAIDEIA — Layout System
+   ========================================================================== */
+
+/* ── Page Layout ──────────────────────────────────────────────────────────── */
+.page {
+    flex: 1;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: var(--space-xl) var(--space-lg);
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+}
+
+.page-header h1 {
+    margin-bottom: var(--space-xs);
+}
+
+.page-header .subtitle {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--text-lg);
+    color: var(--gold-dark);
+}
+
+/* ── Tool Grid ────────────────────────────────────────────────────────────── */
+.tool-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-2xl);
+}
+
+.tool-grid--label {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm) 0;
+}
+
+.tool-grid--label span {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--gold-dark);
+    white-space: nowrap;
+}
+
+.tool-grid--label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--gold-light), transparent);
+}
+
+/* ── Section ──────────────────────────────────────────────────────────────── */
+.section {
+    margin-bottom: var(--space-2xl);
+}
+
+.section-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 600;
+    margin-bottom: var(--space-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+/* ── Content Container ────────────────────────────────────────────────────── */
+.content-container {
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+/* ── Two Column ───────────────────────────────────────────────────────────── */
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xl);
+    align-items: start;
+}
+
+/* ── Tool View Layout ─────────────────────────────────────────────────────── */
+.tool-view {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: var(--space-xl) var(--space-lg);
+}
+
+.tool-view__header {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+}
+
+.tool-view__greek-letter {
+    font-family: var(--font-display);
+    font-size: var(--text-5xl);
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: var(--space-sm);
+}
+
+.tool-view__name {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+}
+
+.tool-view__concept {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--text-base);
+    color: var(--gold-dark);
+}
+
+.tool-view__prompt {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    text-align: center;
+    color: var(--obsidian);
+    margin-bottom: var(--space-xl);
+    padding: var(--space-lg);
+    border-left: 3px solid var(--gold);
+    background: var(--marble-light);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.tool-view__body {
+    margin-bottom: var(--space-xl);
+}
+
+.tool-view__results {
+    margin-top: var(--space-2xl);
+}
+
+/* ── Back Navigation ──────────────────────────────────────────────────────── */
+.back-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--text-sm);
+    color: var(--obsidian-soft);
+    cursor: pointer;
+    margin-bottom: var(--space-lg);
+    transition: color var(--duration-fast) var(--ease-out);
+    background: none;
+    border: none;
+    font-family: var(--font-body);
+}
+
+.back-nav:hover {
+    color: var(--gold);
+}
+
+.back-nav svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .tool-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-md);
+    }
+
+    .two-col {
+        grid-template-columns: 1fr;
+    }
+
+    .page {
+        padding: var(--space-lg) var(--space-md);
+    }
+
+    h1 {
+        font-size: var(--text-3xl);
+    }
+
+    .tool-view {
+        padding: var(--space-lg) var(--space-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .tool-grid {
+        grid-template-columns: 1fr;
+    }
+
+    h1 {
+        font-size: var(--text-2xl);
+    }
+
+    .tool-view__greek-letter {
+        font-size: var(--text-4xl);
+    }
+}

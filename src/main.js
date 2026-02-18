@@ -1,0 +1,100 @@
+// ==========================================================================
+// PAIDEIA — Main Application
+// SPA Router + App Initialization
+// ==========================================================================
+
+import { renderHome, initHome } from './views/home.js';
+import { renderNewSession, initNewSession } from './views/newSession.js';
+import { renderStudentJoin, initStudentJoin } from './views/student.js';
+import { renderSession, initSession } from './views/session.js';
+import { renderGnosis, initGnosis } from './views/gnosis.js';
+import { renderEikasia, initEikasia } from './views/eikasia.js';
+import { renderAporia, initAporia } from './views/aporia.js';
+import { renderNoesis, initNoesis } from './views/noesis.js';
+import { renderMethexis, initMethexis } from './views/methexis.js';
+import { renderLogos, initLogos } from './views/logos.js';
+import { renderAnamnesis, initAnamnesis } from './views/anamnesis.js';
+import { renderGuiaDocente, initGuiaDocente } from './views/guia-docente.js';
+import { renderGuiaEstudiante, initGuiaEstudiante } from './views/guia-estudiante.js';
+
+const app = document.getElementById('app');
+
+// ── Router ────────────────────────────────────────────────────────────────
+const routes = {
+    '/': { render: renderHome, init: initHome },
+    '/new-session': { render: renderNewSession, init: initNewSession },
+    '/join': { render: renderStudentJoin, init: initStudentJoin },
+    '/guia-docente': { render: renderGuiaDocente, init: initGuiaDocente },
+    '/guia-estudiante': { render: renderGuiaEstudiante, init: initGuiaEstudiante },
+};
+
+const toolRoutes = {
+    gnosis: { render: renderGnosis, init: initGnosis },
+    eikasia: { render: renderEikasia, init: initEikasia },
+    aporia: { render: renderAporia, init: initAporia },
+    noesis: { render: renderNoesis, init: initNoesis },
+    methexis: { render: renderMethexis, init: initMethexis },
+    logos: { render: renderLogos, init: initLogos },
+    anamnesis: { render: renderAnamnesis, init: initAnamnesis },
+};
+
+function getRoute() {
+    const hash = window.location.hash.slice(1) || '/';
+    return hash.split('?')[0]; // Remove query params
+}
+
+function navigate() {
+    const path = getRoute();
+
+    // Static routes
+    if (routes[path]) {
+        app.innerHTML = routes[path].render();
+        if (routes[path].init) routes[path].init();
+        window.scrollTo(0, 0);
+        return;
+    }
+
+    // Session route: /session/:code
+    const sessionMatch = path.match(/^\/session\/([A-Z]+)$/i);
+    if (sessionMatch) {
+        app.innerHTML = renderSession(sessionMatch[1].toUpperCase());
+        initSession();
+        window.scrollTo(0, 0);
+        return;
+    }
+
+    // Tool route: /tool/:toolId
+    const toolMatch = path.match(/^\/tool\/(\w+)$/);
+    if (toolMatch && toolRoutes[toolMatch[1]]) {
+        const toolRoute = toolRoutes[toolMatch[1]];
+        app.innerHTML = toolRoute.render();
+        if (toolRoute.init) toolRoute.init();
+        window.scrollTo(0, 0);
+        return;
+    }
+
+    // 404
+    app.innerHTML = `
+    <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+      <div class="empty-state">
+        <div class="empty-state__icon">Ω</div>
+        <p class="empty-state__text">Página no encontrada</p>
+        <a href="#/" class="btn btn--outline" style="margin-top: var(--space-lg);">
+          Volver al inicio
+        </a>
+      </div>
+    </div>
+  `;
+}
+
+// ── Initialize ────────────────────────────────────────────────────────────
+window.addEventListener('hashchange', navigate);
+window.addEventListener('DOMContentLoaded', () => {
+    if (!window.location.hash) {
+        window.location.hash = '/';
+    }
+    navigate();
+});
+
+// Initial navigation
+navigate();

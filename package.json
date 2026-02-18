@@ -1,0 +1,19 @@
+{
+  "name": "paideia",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Παιδεία — Suite de herramientas pedagógicas inspirada en la filosofía griega",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4",
+    "canvas-confetti": "^1.9.3"
+  }
+}

@@ -1,0 +1,16 @@
+{
+    "name": "Paideia",
+    "short_name": "Paideia",
+    "description": "Suite de herramientas pedagógicas para formación integral",
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#F5F2EB",
+    "theme_color": "#1A1A2E",
+    "icons": [
+        {
+            "src": "favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ]
+}
