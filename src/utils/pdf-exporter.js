@@ -4,49 +4,84 @@ import { applyPlugin } from 'jspdf-autotable';
 // Explicitly register the plugin
 applyPlugin(jsPDF);
 
+const THEME = {
+    colors: {
+        marble: '#F5F2EB',
+        obsidian: '#1A1A2E',
+        gold: '#C9A84C',
+        terracotta: '#C4704B',
+        aegean: '#3D5A80',
+        olive: '#6B7F5E',
+        white: '#FFFFFF',
+        textSoft: '#2D2D44'
+    },
+    fonts: {
+        heading: 'times',
+        body: 'helvetica'
+    }
+};
+
 export async function exportSessionPDF(session, toolsData) {
     if (!toolsData) return;
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
-    const margin = 15;
+    const margin = 20;
     let y = margin;
 
+    // --- Background (Optional: full page background color is hard in basic jspdf without rect) ---
+    // We will keep white background for printability, but use colors in elements.
+
     // --- Header ---
-    doc.setFontSize(22);
-    doc.setTextColor(59, 130, 246); // Paideia Blue
+    doc.setFont(THEME.fonts.heading, 'bold');
+    doc.setFontSize(26);
+    doc.setTextColor(THEME.colors.obsidian);
     doc.text('PAIDEIA', margin, y);
 
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text('Formación Integral', margin + 35, y);
+    // Subtitle / Greek branding
+    doc.setFont(THEME.fonts.heading, 'italic');
+    doc.setFontSize(12);
+    doc.setTextColor(THEME.colors.gold);
+    doc.text('Paideia · Formación Integral', margin, y + 6);
 
-    y += 10;
-    doc.setDrawColor(200);
+    y += 15;
+
+    // Aesthetic Line
+    doc.setDrawColor(THEME.colors.gold);
+    doc.setLineWidth(0.5);
     doc.line(margin, y, pageWidth - margin, y);
     y += 10;
 
     // --- Session Info ---
-    doc.setFontSize(14);
-    doc.setTextColor(0);
-    doc.text(`Tema: ${session.topic}`, margin, y);
-    y += 7;
-
+    doc.setFont(THEME.fonts.body, 'bold');
     doc.setFontSize(10);
-    doc.setTextColor(80);
-    doc.text(`Código: ${session.code}`, margin, y);
-    doc.text(`Fecha: ${new Date(session.createdAt).toLocaleDateString()}`, margin + 50, y);
+    doc.setTextColor(THEME.colors.aegean);
+    doc.text('REPORTE DE SESIÓN', margin, y);
+    y += 6;
+
+    doc.setFont(THEME.fonts.heading, 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(THEME.colors.obsidian);
+    doc.text(session.topic || 'Sin título', margin, y);
+    y += 8;
+
+    doc.setFont(THEME.fonts.body, 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(THEME.colors.textSoft);
+
+    const dateStr = new Date(session.createdAt).toLocaleDateString();
+    doc.text(`Código: ${session.code}  |  Fecha: ${dateStr}`, margin, y);
     y += 15;
 
     // --- Tools Data ---
     const toolNames = {
         gnosis: 'Gnosis (Conocimiento Previo)',
         noesis: 'Noesis (Comprensión)',
-        eikasia: 'Eikasia (Imaginación/Hipótesis)',
+        eikasia: 'Eikasia (Imaginación)',
         aporia: 'Aporia (Duda/Confusión)',
         logos: 'Logos (Palabra/Concepto)',
         methexis: 'Methexis (Conexión)',
-        anamnesis: 'Anamnesis (Recuerdo/Cierre)'
+        anamnesis: 'Anamnesis (Recuerdo)'
     };
 
     const toolKeys = ['gnosis', 'noesis', 'eikasia', 'aporia', 'logos', 'methexis', 'anamnesis'];
@@ -55,19 +90,18 @@ export async function exportSessionPDF(session, toolsData) {
         const entries = toolsData[key];
         if (!entries) return; // Skip if no data
 
-        // Check if we need a new page
+        // Check page break
         if (y > doc.internal.pageSize.height - 40) {
             doc.addPage();
             y = margin;
         }
 
-        // Tool Header
+        // Section Header
+        doc.setFont(THEME.fonts.heading, 'bold');
         doc.setFontSize(14);
-        doc.setTextColor(60, 60, 60);
-        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(THEME.colors.obsidian);
         doc.text(toolNames[key] || key.toUpperCase(), margin, y);
         y += 2;
-        doc.setFont('helvetica', 'normal');
 
         // Prepare table data based on tool type
         let head = [];
@@ -104,12 +138,28 @@ export async function exportSessionPDF(session, toolsData) {
             head: head,
             body: body,
             theme: 'grid',
-            headStyles: { fillColor: [240, 240, 240], textColor: 50 },
-            styles: { fontSize: 9, cellPadding: 3 },
+            headStyles: {
+                fillColor: THEME.colors.aegean,
+                textColor: THEME.colors.white,
+                font: THEME.fonts.heading,
+                fontStyle: 'bold'
+            },
+            bodyStyles: {
+                textColor: THEME.colors.obsidian,
+                font: THEME.fonts.body
+            },
+            alternateRowStyles: {
+                fillColor: THEME.colors.marble
+            },
+            styles: {
+                fontSize: 10,
+                cellPadding: 4,
+                lineColor: THEME.colors.gold,
+                lineWidth: 0.1
+            },
             margin: { left: margin, right: margin }
         });
 
-        // Use lastAutoTable from doc instance
         y = doc.lastAutoTable.finalY + 15;
     });
 
@@ -120,6 +170,10 @@ export async function exportSessionPDF(session, toolsData) {
         doc.setFontSize(8);
         doc.setTextColor(150);
         doc.text(`Página ${i} de ${pageCount} — Generado por Paideia`, margin, doc.internal.pageSize.height - 10);
+
+        // Footer Line
+        doc.setDrawColor(THEME.colors.parchment || '#E8E0D0');
+        doc.line(margin, doc.internal.pageSize.height - 15, pageWidth - margin, doc.internal.pageSize.height - 15);
     }
 
     doc.save(`Paideia_${session.code}.pdf`);
