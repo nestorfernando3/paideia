@@ -6,8 +6,9 @@
 import { renderHeader } from '../components/header.js';
 import { TOOLS, getToolById } from '../components/toolCard.js';
 import { getCurrentSession, getCurrentRole, isTeacher, setCurrentSession, generateGreekCode, clearCurrentSession, endSession, getStudentName } from '../utils/session.js';
-import { getSession } from '../utils/storage.js';
+import { getSession, getAllToolEntriesAsync } from '../utils/storage.js';
 import { staggerChildren } from '../utils/animations.js';
+import { exportSessionPDF } from '../utils/pdf-exporter.js';
 
 export function renderSession(code) {
   let session = getCurrentSession();
@@ -99,6 +100,9 @@ export function renderSession(code) {
               </button>
               <button class="btn btn--ghost btn--sm" id="show-qr-btn">
                 📱 Mostrar QR
+              </button>
+              <button class="btn btn--ghost btn--sm" id="export-pdf-btn">
+                📄 Exportar PDF
               </button>
             </div>
 
@@ -208,6 +212,30 @@ export function initSession() {
       } else {
         container.style.display = 'none';
         qrBtn.textContent = '📱 Mostrar QR';
+      }
+    });
+  }
+
+  // PDF Export
+  const exportPdfBtn = document.getElementById('export-pdf-btn');
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener('click', async () => {
+      const session = getCurrentSession();
+      if (!session) return;
+
+      const originalText = exportPdfBtn.textContent;
+      exportPdfBtn.textContent = '⏳ Generando...';
+      exportPdfBtn.disabled = true;
+
+      try {
+        const toolsData = await getAllToolEntriesAsync(session.code);
+        await exportSessionPDF(session, toolsData);
+      } catch (err) {
+        console.error('Error exporting PDF:', err);
+        alert('Hubo un error al generar el PDF. Inténtalo de nuevo.');
+      } finally {
+        exportPdfBtn.textContent = originalText;
+        exportPdfBtn.disabled = false;
       }
     });
   }

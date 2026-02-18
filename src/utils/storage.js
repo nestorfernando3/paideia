@@ -148,6 +148,22 @@ export async function getToolEntriesAsync(code, toolName) {
     return getToolEntries(code, toolName);
 }
 
+export async function getAllToolEntriesAsync(code) {
+    if (isFirebaseReady()) {
+        const toolsSnapshot = await fbGet(`sessions/${code}/tools`);
+        if (toolsSnapshot) {
+            // Update local cache for all tools
+            const data = getLocal();
+            if (data.sessions[code]) {
+                data.sessions[code].tools = toolsSnapshot;
+                saveLocal(data);
+            }
+            return toolsSnapshot;
+        }
+    }
+    return getSession(code)?.tools || {};
+}
+
 export function updateToolEntry(code, toolName, index, updates) {
     const data = getLocal();
     const session = data.sessions[code];
