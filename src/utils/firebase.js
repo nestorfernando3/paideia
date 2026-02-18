@@ -20,12 +20,23 @@ const firebaseConfig = {
     appId: "1:897054914699:web:605e15818e82217fbe7c8e",
 };
 
+import { getAuth, signInAnonymously } from 'firebase/auth';
+
 let app = null;
 let db = null;
+let auth = null;
 
 try {
     app = initializeApp(firebaseConfig);
     db = getDatabase(app);
+    auth = getAuth(app);
+
+    // Auto sign-in anonymously
+    signInAnonymously(auth).then(() => {
+        console.log('Signed in anonymously to Firebase');
+    }).catch((error) => {
+        console.error('Error signing in anonymously:', error);
+    });
 } catch (err) {
     console.warn('Firebase not configured — using localStorage fallback', err);
 }
@@ -34,4 +45,4 @@ export function isFirebaseReady() {
     return db !== null && !firebaseConfig.apiKey.startsWith('FIREBASE_');
 }
 
-export { db, ref, set, get, update, onValue, child };
+export { db, auth, ref, set, get, update, onValue, child };
