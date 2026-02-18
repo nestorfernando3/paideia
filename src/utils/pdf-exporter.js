@@ -1,5 +1,8 @@
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import { applyPlugin } from 'jspdf-autotable';
+
+// Explicitly register the plugin
+applyPlugin(jsPDF);
 
 export async function exportSessionPDF(session, toolsData) {
     if (!toolsData) return;
@@ -96,7 +99,7 @@ export async function exportSessionPDF(session, toolsData) {
         }
 
         // Generate Table
-        autoTable(doc, {
+        doc.autoTable({
             startY: y + 3,
             head: head,
             body: body,
@@ -106,7 +109,7 @@ export async function exportSessionPDF(session, toolsData) {
             margin: { left: margin, right: margin }
         });
 
-        // Use lastAutoTable from doc instance, as autoTable attaches it
+        // Use lastAutoTable from doc instance
         y = doc.lastAutoTable.finalY + 15;
     });
 

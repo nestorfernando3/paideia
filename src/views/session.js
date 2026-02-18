@@ -224,7 +224,7 @@ export function initSession() {
       if (!session) return;
 
       const originalText = exportPdfBtn.textContent;
-      exportPdfBtn.textContent = '⏳ Generando...';
+      exportPdfBtn.textContent = '⏳ Generando PDF...';
       exportPdfBtn.disabled = true;
 
       try {
