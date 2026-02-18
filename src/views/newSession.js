@@ -8,7 +8,7 @@ import { TOOLS, renderToolCard } from '../components/toolCard.js';
 import { startSession, setCurrentSession } from '../utils/session.js';
 
 export function renderNewSession() {
-    const toolCheckboxes = TOOLS.map(t => `
+  const toolCheckboxes = TOOLS.map(t => `
     <label class="tool-checkbox" data-tool="${t.id}">
       <input type="checkbox" value="${t.id}" checked />
       <span class="tool-checkbox__letter">${t.letter}</span>
@@ -17,7 +17,7 @@ export function renderNewSession() {
     </label>
   `).join('');
 
-    return `
+  return `
     ${renderHeader()}
     <main class="page">
       <button class="back-nav" onclick="window.location.hash='/'">
@@ -39,6 +39,11 @@ export function renderNewSession() {
           </div>
 
           <div class="input-group">
+            <label for="teacher-code">Código de acceso docente</label>
+            <input type="password" id="teacher-code" class="input" placeholder="Clave de profesor" required />
+          </div>
+
+          <div class="input-group">
             <label>Herramientas activas</label>
             <p class="hint">Selecciona las herramientas que usarás en esta sesión</p>
             <div class="tool-checkboxes" style="margin-top: var(--space-md);">
@@ -56,25 +61,32 @@ export function renderNewSession() {
 }
 
 export function initNewSession() {
-    const form = document.getElementById('session-form');
-    if (!form) return;
+  const form = document.getElementById('session-form');
+  if (!form) return;
 
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
 
-        const topic = document.getElementById('topic').value.trim();
-        if (!topic) return;
+    const topic = document.getElementById('topic').value.trim();
+    const teacherCode = document.getElementById('teacher-code').value.trim();
 
-        const checkboxes = form.querySelectorAll('input[type="checkbox"]:checked');
-        const activeTools = Array.from(checkboxes).map(cb => cb.value);
+    if (teacherCode !== 'paideia') {
+      alert('⛔ Código de docente incorrecto.\nSolicita la clave al administrador.');
+      return;
+    }
 
-        if (activeTools.length === 0) {
-            alert('Selecciona al menos una herramienta');
-            return;
-        }
+    if (!topic) return;
 
-        const session = startSession(topic, activeTools);
-        setCurrentSession(session, 'teacher');
-        window.location.hash = `/session/${session.code}`;
-    });
+    const checkboxes = form.querySelectorAll('input[type="checkbox"]:checked');
+    const activeTools = Array.from(checkboxes).map(cb => cb.value);
+
+    if (activeTools.length === 0) {
+      alert('Selecciona al menos una herramienta');
+      return;
+    }
+
+    const session = startSession(topic, activeTools);
+    setCurrentSession(session, 'teacher');
+    window.location.hash = `/session/${session.code}`;
+  });
 }
