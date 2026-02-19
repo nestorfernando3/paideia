@@ -1,8 +1,12 @@
 {
   "name": "paideia",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Παιδεία — Suite de herramientas pedagógicas inspirada en la filosofía griega",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nestorfernando3/paideia.git"
+  },
   "type": "module",
   "main": "electron/main.js",
   "scripts": {
@@ -52,6 +56,9 @@
     "win": {
       "target": "nsis",
       "icon": "public/favicon.ico"
-    }
+    },
+    "publish": [
+      "github"
+    ]
   }
 }
