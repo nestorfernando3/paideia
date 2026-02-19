@@ -27,9 +27,11 @@ if (isLocalServer) {
     // If we are in dev mode (port 5173) but forced local, we need to connect to port 3000
     // Otherwise (port 3000 or IP), we connect to relative path (default)
     if (window.location.port === '5173') {
-        socket = io("http://localhost:3000");
+        socket = io("https://localhost:3000", {
+            rejectUnauthorized: false  // Accept self-signed cert
+        });
     } else {
-        socket = io(); // Connect to same origin
+        socket = io(); // Connect to same origin (https://)
     }
 
     socket.on('connect', () => {
@@ -43,7 +45,7 @@ let _networkUrl = window.location.origin; // fallback
 if (isLocalServer) {
     // Determine the base url of the server (same host, port 3000)
     const serverBase = window.location.port === '5173'
-        ? 'http://localhost:3000'
+        ? 'https://localhost:3000'
         : window.location.origin;
 
     fetch(`${serverBase}/api/info`)

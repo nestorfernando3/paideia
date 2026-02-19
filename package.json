@@ -20,9 +20,9 @@
     "dist:win": "npm run build && electron-builder --win"
   },
   "devDependencies": {
-    "vite": "^5.4.0",
-    "electron": "^33.2.0",
-    "electron-builder": "^25.1.8"
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8",
+    "vite": "^5.4.0"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.3",
@@ -33,6 +33,7 @@
     "jspdf": "^4.1.0",
     "jspdf-autotable": "^5.0.7",
     "qrcode": "^1.5.4",
+    "selfsigned": "^5.5.0",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3"
   },
@@ -50,7 +51,7 @@
       "node_modules/**/*"
     ],
     "mac": {
-      "target": "dmg",
+      "target": "zip",
       "icon": "public/favicon.ico"
     },
     "win": {

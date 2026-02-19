@@ -1,18 +1,27 @@
 import express from 'express';
-import { createServer } from 'http';
+import https from 'https';
 import { Server } from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import ip from 'ip';
 import cors from 'cors';
+import selfsigned from 'selfsigned';
 
 // Basic setup
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 3000;
 
+// Generate self-signed TLS certificate (valid for 365 days)
+const attrs = [{ name: 'commonName', value: 'paideia.local' }];
+const pems = selfsigned.generate(attrs, { days: 365, keySize: 2048 });
+
 const app = express();
-const httpServer = createServer(app);
+const httpsServer = https.createServer(
+    { key: pems.private, cert: pems.cert },
+    app
+);
+
 
 // Enable CORS for development
 app.use(cors());
@@ -37,7 +46,7 @@ app.get('/api/info', (req, res) => {
 });
 
 // Socket.io setup
-const io = new Server(httpServer, {
+const io = new Server(httpsServer, {
     cors: {
         origin: ["http://localhost:5173", "http://127.0.0.1:5173", "*"], // Allow connections from Vite dev server and others
         methods: ["GET", "POST"],
@@ -51,15 +60,15 @@ const db = {
 };
 
 // Start server
-httpServer.listen(PORT, '0.0.0.0', () => {
+httpsServer.listen(PORT, '0.0.0.0', () => {
     const localIp = ip.address();
     console.log(`
-  🚀 PAIDEIA LOCAL SERVER RUNNING!
+  🔒 PAIDEIA LOCAL SERVER RUNNING (HTTPS)!
   
-  > Access locally:   http://localhost:${PORT}
-  > Network access:   http://${localIp}:${PORT}
+  > Access locally:   https://localhost:${PORT}
+  > Network access:   https://${localIp}:${PORT}
   
-  Share the Network URL with your students so they can join!
+  Students: scan the QR — tap 'Advanced' → 'Visit Anyway' once on the warning.
   `);
 });
 
