@@ -13,25 +13,33 @@ import { getNextTool } from '../utils/flow.js';
  * @returns {string} Full HTML
  */
 export function renderToolLayout(tool, bodyHtml) {
-    const session = getCurrentSession();
-    const backHash = session ? `/session/${session.code}` : '/';
+  const session = getCurrentSession();
+  const backHash = session ? `/session/${session.code}` : '/';
 
-    // Navigation Flow (Student only)
-    let navHtml = '';
-    if (session && !isTeacher()) {
-        const nextId = getNextTool(tool.id, session.activeTools || [], session.code, getStudentId());
-        if (nextId) {
-            const nextToolName = getToolName(nextId); // Helper needed
-            navHtml = `
+  // Navigation Flow (Student only)
+  let navHtml = '';
+  if (session && !isTeacher()) {
+    const nextId = getNextTool(tool.id, session.activeTools || [], session.code, getStudentId());
+    if (nextId) {
+      const nextToolName = getToolName(nextId); // Helper needed
+      navHtml = `
             <a href="#/tool/${nextId}" class="btn-flow animate-slide-up">
               <span>Siguiente: ${nextToolName}</span>
               <span class="btn-flow__arrow">→</span>
             </a>
           `;
-        }
+    } else if (tool.id === 'gnosis') {
+      // End of flow (specifically at Gnosis)
+      navHtml = `
+            <a href="#/session/${session.code}" class="btn-flow btn-flow--finish animate-slide-up" style="background: var(--olive); color: var(--marble);">
+              <span>Finalizar Sesión</span>
+              <span class="btn-flow__arrow">🏁</span>
+            </a>
+          `;
     }
+  }
 
-    return `
+  return `
     ${renderHeader()}
     <main class="page">
       <div class="nav-bar">
@@ -63,6 +71,6 @@ export function renderToolLayout(tool, bodyHtml) {
 import { TOOLS } from './toolCard.js';
 
 function getToolName(id) {
-    const t = TOOLS.find(x => x.id === id);
-    return t ? t.name : 'Siguiente';
+  const t = TOOLS.find(x => x.id === id);
+  return t ? t.name : 'Siguiente';
 }
