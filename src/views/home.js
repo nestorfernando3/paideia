@@ -78,27 +78,34 @@ export function renderHome() {
       </div>
 
       <div class="content-container" style="margin-bottom: var(--space-2xl);">
-        <div style="display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap;">
-          <button class="btn btn--gold btn--lg" onclick="window.location.hash='/new-session'">
-            Crear sesión de clase
-          </button>
-          <button class="btn btn--outline btn--lg" onclick="window.location.hash='/join'">
-            Unirse como estudiante
-          </button>
+        <div class="actions-grid">
+          <div class="action-card" onclick="window.location.hash='/join'">
+            <div class="action-card__icon">🎓</div>
+            <h3>Soy Estudiante</h3>
+            <p>Unirse a una clase con código</p>
+            <button class="btn btn--outline btn--full">Unirse</button>
+          </div>
+
+          <div class="action-card" onclick="window.location.hash='/new-session'">
+            <div class="action-card__icon">🍎</div>
+            <h3>Soy Docente</h3>
+            <p>Crear nueva sesión</p>
+            <button class="btn btn--gold btn--full">Crear Sesión</button>
+            <div style="margin-top: var(--space-sm); font-size: var(--text-xs);">
+                <a href="#/teacher-join" class="link-subtle" onclick="event.stopPropagation()">
+                    ¿Ya tienes sesión? Reingresar
+                </a>
+            </div>
+          </div>
         </div>
-        <div style="display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; margin-top: var(--space-md);">
+
+        <div style="display: flex; gap: var(--space-md); justify-content: center; margin-top: var(--space-xl);">
           <a href="#/guia-docente" class="btn btn--ghost btn--sm">
             📖 Guía del Docente
           </a>
           <a href="#/guia-estudiante" class="btn btn--ghost btn--sm">
             🎓 Guía del Estudiante
           </a>
-        </div>
-        
-        <div style="text-align: center; margin-top: var(--space-lg);">
-            <a href="#/teacher-join" style="color: var(--obsidian-soft); font-size: var(--text-xs); text-decoration: underline;">
-                ¿Eres docente? Reúnete a tu sesión
-            </a>
         </div>
       </div>
 
