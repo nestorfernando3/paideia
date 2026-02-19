@@ -110,7 +110,25 @@ export function getNextTool(currentToolId, activeTools, sessionCode, studentId) 
             const hasAfter = entries.some(e => e.phase === 'after' && e.studentId === studentId);
 
             if (!hasBefore) return middleActive[0]; // Should do Gnosis -> Next
-            if (!hasAfter) return middleActive[0]; // Allow loop: Start -> Middle -> ... -> End -> Middle
+
+            // Heuristic: If we are back at Gnosis and have participated in middle tools, we are at End.
+            // If we have NOT participated, force loop to middle.
+
+            let hasMiddleParticipation = false;
+            // Need to check entries for participation
+            for (const midId of middleActive) {
+                const midEntries = getToolEntries(sessionCode, midId);
+                if (midEntries.some(e => e.studentId === studentId)) {
+                    hasMiddleParticipation = true;
+                    break;
+                }
+            }
+
+            if (!hasMiddleParticipation && middleActive.length > 0) {
+                return middleActive[0];
+            }
+
+            if (!hasAfter) return null; // Allow After form
 
             return null; // Done with everything
         } else {
