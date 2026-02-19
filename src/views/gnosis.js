@@ -157,7 +157,7 @@ function renderGnosisTeacher(session) {
     </button>
   `;
 
-  return renderToolLayout(bodyHtml);
+  return renderToolLayout(tool, bodyHtml);
 }
 
 function renderDistribution(entries) {
