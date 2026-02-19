@@ -31,21 +31,44 @@
 ### Como Estudiante
 1. Abre Paideia y haz clic en **"Unirse como estudiante"**
 2. Ingresa el código de la sesión
-3. Responde a las herramientas que tu profesor active
+3. El sistema te guía automáticamente por las actividades de la clase
+4. Al finalizar, completa tu reflexión final en Gnosis
+
+## ✨ Características Principales
+
+### 🔄 Flujo Guiado (v1.3)
+Los estudiantes son guiados automáticamente a través de las herramientas activas de la sesión en el orden pedagógico correcto:
+- **Barra de progreso visual** que muestra la posición del estudiante en el flujo
+- **Botón "Siguiente"** con animación que lleva a la próxima actividad
+- **Botón "Finalizar Sesión"** al completar todas las actividades
+- Detección inteligente de participación antes de permitir el cierre
+
+### 🎨 Diseño Premium (v1.3)
+- Micro-animaciones: entradas escalonadas, pulse-glow en CTAs, shimmer en botones
+- Touch targets de 44px (WCAG AA) para accesibilidad móvil
+- Soporte para dispositivos con notch (safe-area)
+- Badge de rol (Docente/Estudiante) en el header
+- Inputs con focus state premium (sombra interior + fondo blanco)
+
+### 🔥 Tiempo Real (v1.2)
+- Sincronización multi-dispositivo mediante **Firebase Realtime Database**
+- Autenticación anónima automática
+- Código de acceso docente para proteger la creación de sesiones
+
+### 📄 Exportación PDF (v1.1)
+- Reportes profesionales descargables con un solo clic
+- Diseño con la línea gráfica de Paideia
+- Incluye todas las respuestas, dudas y reflexiones
 
 ## 🛠️ Tecnologías
 
 - **Vite** — Build tool moderno
 - **Vanilla JavaScript** — Sin frameworks, rendimiento máximo
-- **CSS Custom Properties** — Sistema de diseño extensible
-- **localStorage** + **sessionStorage** — Persistencia local
+- **CSS Custom Properties** — Sistema de diseño con 40+ tokens
+- **Firebase** — Realtime Database + Anonymous Auth
 - **QR Code** — Generación de códigos QR para compartir sesiones
 - **GitHub Actions** — CI/CD automático con GitHub Pages
 - **jsPDF + AutoTable** — Generación de reportes PDF en cliente
-
-## ✨ Características Nuevas (v1.1)
-
-- **📄 Exportación PDF**: Descarga reportes detallados de la sesión con un solo clic, incluyendo todas las respuestas y dudas, con un diseño profesional listo para imprimir o archivar.
 
 ## 📦 Desarrollo Local
 
