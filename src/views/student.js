@@ -108,6 +108,11 @@ export function initStudentJoin() {
     setCurrentSession(session, 'student');
     setStudentName(name);
     getStudentId();
-    window.location.hash = `/session/${code}`;
+    // Auto-redirect to Gnosis for guided flow if active
+    if (session.activeTools && session.activeTools.includes('gnosis')) {
+      window.location.hash = `/tool/gnosis`;
+    } else {
+      window.location.hash = `/session/${code}`;
+    }
   });
 }

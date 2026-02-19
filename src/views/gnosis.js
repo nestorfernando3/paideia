@@ -8,6 +8,7 @@ import { getToolById } from '../components/toolCard.js';
 import { getCurrentSession, isTeacher, getStudentId } from '../utils/session.js';
 import { addToolEntry, getToolEntries, getToolEntriesAsync } from '../utils/storage.js';
 import { showToast } from '../utils/ui.js';
+import { renderToolLayout } from '../components/layout.js';
 
 const tool = getToolById('gnosis');
 
@@ -99,7 +100,7 @@ function renderGnosisStudent(session) {
     `;
   }
 
-  return renderToolLayout(bodyHtml);
+  return renderToolLayout(tool, bodyHtml);
 }
 
 function renderGnosisTeacher(session) {
@@ -196,30 +197,7 @@ function renderNoSession() {
   `;
 }
 
-function renderToolLayout(bodyHtml) {
-  const session = getCurrentSession();
-  const backHash = session ? `/session/${session.code}` : '/';
 
-  return `
-    ${renderHeader()}
-    <main class="page">
-      <a class="back-nav" href="#${backHash}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        Volver
-      </a>
-      <div class="tool-view animate-fade-in">
-        <div class="tool-view__header">
-          <div class="tool-view__greek-letter">${tool.letter}</div>
-          <h2 class="tool-view__name">${tool.name}</h2>
-          <p class="tool-view__concept">${tool.greek} · autoconocimiento</p>
-        </div>
-        <div class="tool-view__body">
-          ${bodyHtml}
-        </div>
-      </div>
-    </main>
-  `;
-}
 
 export function initGnosis() {
   // Before slider

@@ -7,6 +7,7 @@ import { renderHeader } from '../components/header.js';
 import { getToolById } from '../components/toolCard.js';
 import { getCurrentSession, isTeacher, getStudentId } from '../utils/session.js';
 import { addToolEntry, getToolEntries, getToolEntriesAsync } from '../utils/storage.js';
+import { renderToolLayout } from '../components/layout.js';
 
 const tool = getToolById('eikasia');
 
@@ -82,25 +83,7 @@ export function renderEikasia() {
     `;
   }
 
-  return `
-    ${renderHeader()}
-    <main class="page">
-      <a class="back-nav" href="#${backHash}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        Volver
-      </a>
-      <div class="tool-view animate-fade-in">
-        <div class="tool-view__header">
-          <div class="tool-view__greek-letter">${tool.letter}</div>
-          <h2 class="tool-view__name">${tool.name}</h2>
-          <p class="tool-view__concept">${tool.greek} · conjetura</p>
-        </div>
-        <div class="tool-view__body">
-          ${bodyHtml}
-        </div>
-      </div>
-    </main>
-  `;
+  return renderToolLayout(tool, bodyHtml);
 }
 
 function renderNoSession() {
