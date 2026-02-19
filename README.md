@@ -70,6 +70,27 @@ Los estudiantes son guiados automáticamente a través de las herramientas activ
 - **GitHub Actions** — CI/CD automático con GitHub Pages
 - **jsPDF + AutoTable** — Generación de reportes PDF en cliente
 
+## 📡 Modo Local (Sin Internet)
+
+Paideia incluye un servidor independiente que permite usar la aplicación en una red local (LAN) sin conexión a internet, utilizando tu computadora como servidor central.
+
+### Requisitos
+- Tener **Node.js** instalado en el computador del docente.
+- Docente y Estudiantes deben estar conectados a la misma red WiFi.
+
+### Iniciar en Modo Local
+
+1. Abre tu terminal en la carpeta del proyecto.
+2. Ejecuta el siguiente comando (esto construirá la app y lanzará el servidor):
+   ```bash
+   npm run start:local
+   ```
+3. La terminal mostrará dos direcciones:
+   - **Local**: Para que el docente ingrese en su propia máquina.
+   - **Network**: La dirección IP que debes compartir con los estudiantes.
+
+> **Nota**: En modo local, verás un distintivo "📡 MODO LOCAL" en la cabecera. Los datos de la sesión se guardan temporalmente en la memoria del servidor y se perderán si cierras la terminal.
+
 ## 📦 Desarrollo Local
 
 ```bash
