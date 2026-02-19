@@ -7,12 +7,15 @@ import { io } from "socket.io-client";
 import { db, ref, get, set, update, onValue } from './firebase.js'; // Fallback to firebase imports
 
 // Detection heuristic: 
-// If running on localhost:3000 (production build served locally) -> LOCAL MODE
-// If running on localhost:5173 (dev) -> FIREBASE MODE (usually)
-// If running on github.io -> FIREBASE MODE
+// 1. Explicit ?mode=local param
+// 2. Running on localhost:3000 (prod build served by server/index.mjs)
+// 3. Running on local IP (LAN access)
+const urlParams = new URLSearchParams(window.location.search);
+const forceLocal = urlParams.get('mode') === 'local';
 
 const isLocalServer =
-    window.location.hostname === 'localhost' && window.location.port !== '5173' ||
+    forceLocal ||
+    (window.location.hostname === 'localhost' && window.location.port === '3000') ||
     window.location.hostname.startsWith('192.168.') ||
     window.location.hostname.startsWith('10.');
 
@@ -20,15 +23,45 @@ const isLocalServer =
 let socket = null;
 if (isLocalServer) {
     console.log('🔌 Paideia running in LOCAL LAN MODE');
-    socket = io(); // Connect to same origin
+
+    // If we are in dev mode (port 5173) but forced local, we need to connect to port 3000
+    // Otherwise (port 3000 or IP), we connect to relative path (default)
+    if (window.location.port === '5173') {
+        socket = io("http://localhost:3000");
+    } else {
+        socket = io(); // Connect to same origin
+    }
 
     socket.on('connect', () => {
         console.log('✅ Connected to Local Server', socket.id);
     });
 }
 
+// Network URL for QR codes (fetched from /api/info in Local Mode)
+let _networkUrl = window.location.origin; // fallback
+
+if (isLocalServer) {
+    // Determine the base url of the server (same host, port 3000)
+    const serverBase = window.location.port === '5173'
+        ? 'http://localhost:3000'
+        : window.location.origin;
+
+    fetch(`${serverBase}/api/info`)
+        .then(r => r.json())
+        .then(info => {
+            _networkUrl = info.networkUrl;
+            console.log('📡 Network URL for QR:', _networkUrl);
+        })
+        .catch(() => {
+            console.warn('Could not fetch /api/info, using origin as fallback');
+        });
+}
+
 export const backend = {
     mode: isLocalServer ? 'LOCAL' : 'FIREBASE',
+
+    // Network URL to use in QR codes (shows the real LAN IP, not localhost)
+    get networkUrl() { return _networkUrl; },
 
     async get(path) {
         if (this.mode === 'FIREBASE') {

@@ -9,6 +9,7 @@ import { getCurrentSession, getCurrentRole, isTeacher, setCurrentSession, genera
 import { getSession, getAllToolEntriesAsync } from '../utils/storage.js';
 import { staggerChildren } from '../utils/animations.js';
 import { exportSessionPDF } from '../utils/pdf-exporter.js';
+import { backend } from '../utils/backend.js';
 
 export function renderSession(code) {
   let session = getCurrentSession();
@@ -106,11 +107,18 @@ export function renderSession(code) {
               </button>
             </div>
 
-            <div id="qr-container" style="display: none; margin-top: var(--space-lg); text-align: center;">
+            <div id="qr-container" style="${backend.mode === 'LOCAL' ? 'display: block' : 'display: none'}; margin-top: var(--space-lg); text-align: center;">
               <canvas id="qr-canvas"></canvas>
+              ${backend.mode === 'LOCAL' ? `
+              <p style="font-size: var(--text-sm); color: var(--obsidian-soft); margin-top: var(--space-sm);">
+                📱 Tus estudiantes escanean este código para unirse
+              </p>
+              <p style="font-size: var(--text-xs); color: var(--obsidian-muted); margin-top: var(--space-xs);">
+                Sin internet — solo WiFi
+              </p>` : `
               <p style="font-size: var(--text-xs); color: var(--obsidian-soft); margin-top: var(--space-sm);">
                 Los estudiantes escanean este código para unirse
-              </p>
+              </p>`}
             </div>
           ` : ''}
         </div>
@@ -138,6 +146,23 @@ export function renderSession(code) {
 
 export function initSession() {
   staggerChildren('#session-tools .tool-card', 80);
+
+  // Auto-generate QR in Local Mode (teacher)
+  if (backend.mode === 'LOCAL' && isTeacher()) {
+    const canvas = document.getElementById('qr-canvas');
+    if (canvas) {
+      import('qrcode').then(mod => {
+        const QRCode = mod.default;
+        const baseUrl = backend.networkUrl || window.location.origin;
+        const url = `${baseUrl}${window.location.pathname}#/join`;
+        QRCode.toCanvas(canvas, url, {
+          width: 280,
+          margin: 2,
+          color: { dark: '#1A1A2E', light: '#F5F2EB' },
+        }).catch(console.error);
+      });
+    }
+  }
 
   // End session (teacher only)
   const endBtn = document.getElementById('end-session-btn');
@@ -170,7 +195,8 @@ export function initSession() {
       const session = getCurrentSession();
       if (!session) return;
 
-      const url = `${window.location.origin}${window.location.pathname}#/join`;
+      const baseUrl = backend.networkUrl || window.location.origin;
+      const url = `${baseUrl}${window.location.pathname}#/join`;
       const text = `Únete a mi clase de Paideia con el código: ${session.code}\n${url}`;
 
       if (navigator.share) {
@@ -200,9 +226,11 @@ export function initSession() {
         try {
           const QRCode = (await import('qrcode')).default;
           const session = getCurrentSession();
-          const url = `${window.location.origin}${window.location.pathname}#/join`;
+          const baseUrl = backend.networkUrl || window.location.origin;
+          const url = `${baseUrl}${window.location.pathname}#/join`;
+          const isLocal = backend.mode === 'LOCAL';
           await QRCode.toCanvas(canvas, url, {
-            width: 200,
+            width: isLocal ? 280 : 200,
             margin: 2,
             color: { dark: '#1A1A2E', light: '#F5F2EB' },
           });

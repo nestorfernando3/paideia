@@ -26,11 +26,22 @@ app.get('/', (req, res) => {
     res.redirect('/paideia/');
 });
 
+// API: Server info (used by the frontend in Local Mode to get the network URL for QR codes)
+app.get('/api/info', (req, res) => {
+    res.json({
+        mode: 'LOCAL',
+        ip: ip.address(),
+        port: PORT,
+        networkUrl: `http://${ip.address()}:${PORT}`
+    });
+});
+
 // Socket.io setup
 const io = new Server(httpServer, {
     cors: {
-        origin: "*", // Allow connections from any origin (local network)
-        methods: ["GET", "POST"]
+        origin: ["http://localhost:5173", "http://127.0.0.1:5173", "*"], // Allow connections from Vite dev server and others
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
