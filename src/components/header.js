@@ -11,8 +11,11 @@ export function renderHeader() {
   let sessionHtml = '';
   if (session && session.active) {
     const greekCode = generateGreekCode(session.code);
+    const roleLabel = role === 'teacher' ? 'Docente' : 'Estudiante';
+    const roleBadgeClass = role === 'teacher' ? 'badge--gold' : 'badge--aegean';
     sessionHtml = `
       <div class="header__session">
+        <span class="badge ${roleBadgeClass}" style="font-size: 0.6rem; padding: 2px 8px;">${roleLabel}</span>
         <span class="live-badge"><span class="live-badge__dot"></span> En sesión</span>
         <span class="header__session-code" title="${greekCode}">${session.code}</span>
       </div>

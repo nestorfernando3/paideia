@@ -190,7 +190,17 @@
 .btn--gold:hover {
     background: var(--gold-light);
     transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(201, 168, 76, 0.3);
+    box-shadow: 0 6px 20px rgba(201, 168, 76, 0.35);
+}
+
+.btn--gold:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(201, 168, 76, 0.2);
+}
+
+.btn--primary:active {
+    transform: translateY(0);
+    box-shadow: none;
 }
 
 .btn--outline {
@@ -268,19 +278,21 @@
     width: 100%;
     font-family: var(--font-body);
     font-size: var(--text-base);
-    padding: var(--space-sm) var(--space-md);
-    border: 1px solid var(--parchment);
+    padding: var(--space-md);
+    border: 1.5px solid var(--parchment);
     border-radius: var(--radius-md);
     background: var(--marble-light);
     color: var(--obsidian);
     transition: border-color var(--duration-fast) var(--ease-out),
-        box-shadow var(--duration-fast) var(--ease-out);
+        box-shadow var(--duration-fast) var(--ease-out),
+        background-color var(--duration-fast) var(--ease-out);
     outline: none;
 }
 
 .input:focus {
     border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+    box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12), inset 0 1px 3px rgba(26, 26, 46, 0.04);
+    background: white;
 }
 
 .input::placeholder {
@@ -361,11 +373,13 @@ textarea.input {
     border: 1px solid var(--parchment);
     border-radius: var(--radius-lg);
     padding: var(--space-lg);
-    transition: box-shadow var(--duration-normal) var(--ease-out);
+    transition: box-shadow var(--duration-normal) var(--ease-out),
+        border-color var(--duration-normal) var(--ease-out);
 }
 
 .card--elevated {
-    box-shadow: 0 4px 20px var(--shadow);
+    box-shadow: 0 4px 24px rgba(201, 168, 76, 0.06), 0 1px 4px var(--shadow);
+    border-color: rgba(201, 168, 76, 0.12);
 }
 
 /* ── Badge ────────────────────────────────────────────────────────────────── */
@@ -1245,5 +1259,174 @@ textarea.input {
     .flow-arrow {
         transform: rotate(90deg);
         justify-content: center;
+    }
+}
+
+/* ── Flow Navigation Button ──────────────────────────────────────────────── */
+.btn-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    width: 100%;
+    max-width: 720px;
+    margin: var(--space-xl) auto 0;
+    padding: var(--space-lg) var(--space-xl);
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-light));
+    color: var(--obsidian);
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: none;
+    border-radius: var(--radius-xl);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all var(--duration-normal) var(--ease-out);
+    animation: pulseGlow 2.5s ease-in-out infinite, slideUp var(--duration-slow) var(--ease-out) both;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-flow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(255, 255, 255, 0.2) 50%, transparent 60%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.btn-flow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(201, 168, 76, 0.4);
+}
+
+.btn-flow:hover::before {
+    transform: translateX(100%);
+}
+
+.btn-flow:active {
+    transform: translateY(0);
+}
+
+.btn-flow__arrow {
+    font-size: var(--text-xl);
+    transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.btn-flow:hover .btn-flow__arrow {
+    transform: translateX(4px);
+}
+
+.btn-flow--finish {
+    background: linear-gradient(135deg, #5a7a4a, var(--olive), #8fa87e) !important;
+    color: var(--marble) !important;
+}
+
+.btn-flow--finish:hover {
+    box-shadow: 0 8px 32px rgba(107, 127, 94, 0.4);
+}
+
+/* ── Progress Steps ──────────────────────────────────────────────────────── */
+.progress-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: var(--space-sm) var(--space-md);
+    margin-bottom: var(--space-lg);
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+.progress-step__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--parchment);
+    border: 2px solid var(--parchment);
+    transition: all var(--duration-normal) var(--ease-out);
+    z-index: 1;
+}
+
+.progress-step--done .progress-step__dot {
+    background: var(--gold);
+    border-color: var(--gold);
+}
+
+.progress-step--current .progress-step__dot {
+    background: var(--marble);
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.25);
+    width: 14px;
+    height: 14px;
+}
+
+.progress-step__label {
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--parchment);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    transition: color var(--duration-normal) var(--ease-out);
+}
+
+.progress-step--done .progress-step__label {
+    color: var(--gold-dark);
+}
+
+.progress-step--current .progress-step__label {
+    color: var(--obsidian);
+    font-weight: 700;
+}
+
+.progress-step__line {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: var(--parchment);
+    z-index: 0;
+}
+
+.progress-step--done .progress-step__line {
+    background: var(--gold);
+}
+
+.progress-step:last-child .progress-step__line {
+    display: none;
+}
+
+@media (max-width: 480px) {
+    .progress-step__label {
+        display: none;
+    }
+
+    .progress-step__dot {
+        width: 8px;
+        height: 8px;
+    }
+
+    .progress-step--current .progress-step__dot {
+        width: 12px;
+        height: 12px;
     }
 }

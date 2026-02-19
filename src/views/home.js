@@ -43,8 +43,8 @@ export function renderHome() {
     const items = recentSessions.map(s => {
       const date = s.createdAt ? new Date(s.createdAt).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) : '';
       const statusBadge = s.active
-        ? '<span class="badge badge--live" style="font-size: 0.65rem;">● Activa</span>'
-        : '<span class="badge badge--gold" style="font-size: 0.65rem;">Finalizada</span>';
+        ? '<span class="badge badge--olive" style="font-size: 0.6rem;">● Activa</span>'
+        : '<span class="badge badge--gold" style="font-size: 0.6rem;">Finalizada</span>';
       return `
         <a href="#/session/${s.code}" class="history-item">
           <div class="history-item__code">${s.code}</div>
@@ -74,19 +74,19 @@ export function renderHome() {
     <main class="page">
       <div class="page-header animate-fade-in">
         <h1>✦ Paideia</h1>
-        <p class="subtitle">Παιδεία · el camino hacia la formación integral</p>
+        <p class="subtitle" style="opacity: 0.8;">Παιδεία · el camino hacia la formación integral</p>
       </div>
 
       <div class="content-container" style="margin-bottom: var(--space-2xl);">
         <div class="actions-grid">
-          <div class="action-card" onclick="window.location.hash='/join'">
+          <div class="action-card animate-card-enter stagger-1" onclick="window.location.hash='/join'">
             <div class="action-card__icon">🎓</div>
             <h3>Soy Estudiante</h3>
             <p>Unirse a una clase con código</p>
             <button class="btn btn--outline btn--full">Unirse</button>
           </div>
 
-          <div class="action-card" onclick="window.location.hash='/new-session'">
+          <div class="action-card animate-card-enter stagger-2" onclick="window.location.hash='/new-session'">
             <div class="action-card__icon">🍎</div>
             <h3>Soy Docente</h3>
             <p>Crear nueva sesión</p>

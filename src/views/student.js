@@ -17,7 +17,7 @@ export function renderStudentJoin() {
           <p class="tool-view__concept">Ingresa el código de tu clase</p>
         </div>
 
-        <form id="join-form" class="animate-slide-up">
+        <form id="join-form" class="animate-card-enter stagger-2">
           <div class="input-group">
             <label for="code">Código de sesión</label>
             <input
@@ -29,6 +29,7 @@ export function renderStudentJoin() {
               style="text-align: center; font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;"
               required
               autocomplete="off"
+              inputmode="text"
             />
           </div>
 
@@ -37,9 +38,18 @@ export function renderStudentJoin() {
             Sesión no encontrada. Verifica el código e intenta de nuevo.
           </div>
 
-          <div id="join-loading" style="display: none; text-align: center; padding: var(--space-md);">
-            <span style="font-size: var(--text-lg);">⏳</span>
-            <p style="font-size: var(--text-sm); color: var(--obsidian-soft);">Buscando sesión...</p>
+          <div id="join-loading" style="display: none; text-align: center; padding: var(--space-lg);">
+            <div class="loading-dots" style="display: flex; justify-content: center; gap: 6px;">
+              <span class="loading-dot" style="width:8px;height:8px;border-radius:50%;background:var(--gold);animation:bounceSoft 1s ease-in-out infinite;"></span>
+              <span class="loading-dot" style="width:8px;height:8px;border-radius:50%;background:var(--gold);animation:bounceSoft 1s ease-in-out 0.15s infinite;"></span>
+              <span class="loading-dot" style="width:8px;height:8px;border-radius:50%;background:var(--gold);animation:bounceSoft 1s ease-in-out 0.3s infinite;"></span>
+            </div>
+            <p style="font-size: var(--text-sm); color: var(--obsidian-soft); margin-top: var(--space-sm);">Buscando sesión...</p>
+          </div>
+
+          <div id="join-success" style="display: none; text-align: center; padding: var(--space-lg);">
+            <div style="font-size: var(--text-3xl); color: var(--olive);">✓</div>
+            <p style="font-size: var(--text-sm); color: var(--olive); margin-top: var(--space-xs); font-weight: 600;">¡Sesión encontrada!</p>
           </div>
 
           <div class="input-group">
@@ -105,14 +115,25 @@ export function initStudentJoin() {
     }
 
     errorEl.style.display = 'none';
+
+    // Show success feedback before redirecting
+    const successEl = document.getElementById('join-success');
+    if (successEl) {
+      successEl.style.display = 'block';
+      successEl.classList.add('animate-fade-in');
+    }
+
     setCurrentSession(session, 'student');
     setStudentName(name);
     getStudentId();
-    // Auto-redirect to Gnosis for guided flow if active
-    if (session.activeTools && session.activeTools.includes('gnosis')) {
-      window.location.hash = `/tool/gnosis`;
-    } else {
-      window.location.hash = `/session/${code}`;
-    }
+
+    // Brief delay for success animation
+    setTimeout(() => {
+      if (session.activeTools && session.activeTools.includes('gnosis')) {
+        window.location.hash = `/tool/gnosis`;
+      } else {
+        window.location.hash = `/session/${code}`;
+      }
+    }, 600);
   });
 }

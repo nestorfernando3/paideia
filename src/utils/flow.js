@@ -6,7 +6,7 @@
 import { getToolEntries } from './storage.js';
 
 // Canonical order of tools in the flow
-const TOOL_ORDER = [
+export const TOOL_ORDER = [
     'gnosis',    // Initial check-in (Phase: before)
     'eikasia',   // Hypothesis
     'noesis',    // Understanding check

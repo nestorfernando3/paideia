@@ -157,15 +157,20 @@
     background: none;
     border: none;
     font-family: var(--font-body);
+    padding: var(--space-sm) var(--space-md);
+    margin-left: calc(-1 * var(--space-md));
+    border-radius: var(--radius-md);
+    min-height: 44px;
 }
 
 .back-nav:hover {
     color: var(--gold);
+    background: rgba(201, 168, 76, 0.06);
 }
 
 .back-nav svg {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
 }
 
 /* ── Responsive ───────────────────────────────────────────────────────────── */
@@ -203,5 +208,12 @@
 
     .tool-view__greek-letter {
         font-size: var(--text-4xl);
+    }
+}
+
+/* ── Safe area (notched devices) ─────────────────────────────────────── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .page {
+        padding-bottom: calc(var(--space-xl) + env(safe-area-inset-bottom));
     }
 }
