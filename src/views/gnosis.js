@@ -9,6 +9,7 @@ import { getCurrentSession, isTeacher, getStudentId } from '../utils/session.js'
 import { addToolEntry, getToolEntries, getToolEntriesAsync } from '../utils/storage.js';
 import { showToast } from '../utils/ui.js';
 import { renderToolLayout } from '../components/layout.js';
+import { getNextTool } from '../utils/flow.js';
 
 const tool = getToolById('gnosis');
 
@@ -51,11 +52,28 @@ function renderGnosisStudent(session) {
     `;
   } else if (!hasAnsweredAfter) {
     const before = entries.find(e => e.phase === 'before' && e.studentId === studentId);
+
+    // Check if flow continues
+    const nextToolId = getNextTool('gnosis', session.activeTools || [], code, studentId);
+
     bodyHtml = `
       <div class="card card--elevated" style="text-align: center; padding: var(--space-xl);">
         <p style="font-family: var(--font-display); font-size: var(--text-lg); color: var(--olive);">✓ Percepción inicial: <strong>${before.value}/5</strong></p>
-        <p style="margin-top: var(--space-sm); color: var(--obsidian-soft); font-size: var(--text-sm);">Al final de la clase, regresa para registrar tu percepción posterior.</p>
+        <p style="margin-top: var(--space-sm); color: var(--obsidian-soft); font-size: var(--text-sm);">Tu respuesta ha sido registrada.</p>
       </div>
+    `;
+
+    if (nextToolId) {
+      // Flow continues: Do NOT show After form yet
+      bodyHtml += `
+        <div style="margin-top: var(--space-2xl); text-align: center;">
+          <p style="margin-bottom: var(--space-md); color: var(--obsidian-soft);">Continúa con las actividades de la clase</p>
+          <div class="animate-bounce-subtle">⬇</div>
+        </div>
+      `;
+    } else {
+      // End of flow: Show After form
+      bodyHtml += `
       <div class="divider--short divider" style="margin: var(--space-xl) auto;"></div>
       <div class="tool-view__prompt">
         Ahora que terminó la clase, ¿qué tan seguro te sientes?
@@ -71,7 +89,8 @@ function renderGnosisStudent(session) {
       <button class="btn btn--gold btn--lg btn--full" id="gnosis-submit-after" style="margin-top: var(--space-lg);">
         Enviar percepción final
       </button>
-    `;
+      `;
+    }
   } else {
     const before = entries.find(e => e.phase === 'before' && e.studentId === studentId);
     const after = entries.find(e => e.phase === 'after' && e.studentId === studentId);
