@@ -27,7 +27,7 @@ const httpsServer = https.createServer(
 app.use(cors());
 
 // Serve static files from the dist directory under the build base path
-const distPath = path.join(__dirname, '../dist');
+const distPath = path.resolve(__dirname, '../dist');
 app.use('/paideia', express.static(distPath));
 
 // Redirect root to /paideia/
@@ -70,6 +70,10 @@ httpsServer.listen(PORT, '0.0.0.0', () => {
   
   Students: scan the QR — tap 'Advanced' → 'Visit Anyway' once on the warning.
   `);
+});
+
+httpsServer.on('error', (err) => {
+    console.error('❌ FATAL: Server failed to start:', err);
 });
 
 // ── Socket.io Logic ────────────────────────────────────────────────────────

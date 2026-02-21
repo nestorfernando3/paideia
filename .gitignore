@@ -4,3 +4,7 @@ dist/
 .DS_Store
 .env
 .env.*
+.npm-cache/
+node_modules_backup/
+paideia_temp/
+release/

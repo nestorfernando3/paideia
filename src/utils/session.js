@@ -41,14 +41,14 @@ export function startSession(topic, activeTools) {
 // Synchronous join (local only — for fallback)
 export function joinSession(code) {
     const session = getSession(code.toUpperCase());
-    if (!session || !session.active) return null;
+    if (!session) return null;
     return session;
 }
 
 // Async join — checks Firebase first, then local fallback
 export async function joinSessionAsync(code) {
     const session = await getSessionAsync(code.toUpperCase());
-    if (!session || !session.active) return null;
+    if (!session) return null;
     return session;
 }
 

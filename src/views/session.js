@@ -41,23 +41,7 @@ export function renderSession(code) {
     `;
   }
 
-  if (!session.active) {
-    return `
-      ${renderHeader()}
-      <main class="page">
-        <div class="empty-state" style="min-height: 60vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-          <div class="empty-state__icon">⏹</div>
-          <p class="empty-state__text">Sesión finalizada</p>
-          <p style="color: var(--obsidian-soft); margin-top: var(--space-sm); font-size: var(--text-sm);">
-            La sesión «${session.topic}» ha terminado.
-          </p>
-          <a href="#/" class="btn btn--outline" style="margin-top: var(--space-lg);">
-            Volver al inicio
-          </a>
-        </div>
-      </main>
-    `;
-  }
+
 
   const greekCode = generateGreekCode(session.code);
   const activeTools = session.activeTools.map(id => getToolById(id)).filter(Boolean);
@@ -77,9 +61,8 @@ export function renderSession(code) {
     <main class="page">
       <div class="tool-view">
         <div class="tool-view__header animate-fade-in">
-          <div class="badge badge--gold" style="margin-bottom: var(--space-md);">
-            <span class="live-badge__dot"></span>
-            Sesión activa
+          <div class="badge ${session.active ? 'badge--gold' : 'badge--olive'}" style="margin-bottom: var(--space-md);">
+            ${session.active ? '<span class="live-badge__dot"></span> Sesión activa' : '<span>⏹</span> Sesión finalizada'}
           </div>
           <h2 class="tool-view__name">${session.topic || 'Sesión de clase'}</h2>
           ${role === 'student' && studentName ? `
@@ -130,7 +113,7 @@ export function renderSession(code) {
         </div>
 
         <div style="text-align: center; margin-top: var(--space-2xl); display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap;">
-          ${role === 'teacher' ? `
+          ${role === 'teacher' && session.active ? `
             <button class="btn btn--ghost" id="end-session-btn" style="color: var(--terracotta);">
               ⏹ Finalizar sesión
             </button>

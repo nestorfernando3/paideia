@@ -30,7 +30,52 @@ function createWindow() {
     // Load the local server URL
     // The server starts on port 3000 by default from server/index.mjs
     const PORT = process.env.PORT || 3000;
-    mainWindow.loadURL(`https://localhost:${PORT}/paideia/`);
+    const targetUrl = `https://localhost:${PORT}/paideia/`;
+
+    // Wait for the server to be ready before loading the URL to avoid blank screens
+    const MAX_RETRIES = 10;
+    const RETRY_INTERVAL = 500; // ms
+    let retries = 0;
+
+    const checkServerAndLoad = () => {
+        // Attempt to fetch the server info endpoint to see if it's alive
+        // Using un-authenticated HTTPS fetch since it's self-signed
+        const https = require('https');
+        const req = https.get(`https://localhost:${PORT}/api/info`, { rejectUnauthorized: false }, (res) => {
+            if (res.statusCode === 200) {
+                console.log('✅ Local server is ready. Loading application UI...');
+                mainWindow.loadURL(targetUrl);
+            } else {
+                retryLoad(); // Server answered but gave a weird status code
+            }
+        });
+
+        req.on('error', (e) => {
+            retryLoad(e);
+        });
+
+        req.end();
+    };
+
+    const retryLoad = (err) => {
+        retries++;
+        if (retries >= MAX_RETRIES) {
+            console.error(`❌ FATAL: Local server failed to start after ${MAX_RETRIES} attempts. Error:`, err?.message || 'Unknown');
+            mainWindow.loadURL(`data:text/html,<h2>Error: Local server could not start.</h2><p>Check the console for details.</p>`);
+            return;
+        }
+        console.log(`⏱️ Server not ready yet. Retrying in ${RETRY_INTERVAL}ms (Attempt ${retries}/${MAX_RETRIES})...`);
+        setTimeout(checkServerAndLoad, RETRY_INTERVAL);
+    };
+
+    // Begin check loop
+    checkServerAndLoad();
+
+    // Log load errors explicitly (vital for debugging blank screens in production)
+    mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+        console.error(`❌ PAGE FAILED TO LOAD: ${validatedURL}`);
+        console.error(`   Code: ${errorCode} | Description: ${errorDescription}`);
+    });
 
     // Open external links in default browser
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
