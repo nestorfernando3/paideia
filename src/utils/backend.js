@@ -13,11 +13,9 @@ import { db, ref, get, set, update, onValue } from './firebase.js'; // Fallback 
 const urlParams = new URLSearchParams(window.location.search);
 const forceLocal = urlParams.get('mode') === 'local';
 
-const isLocalServer =
-    forceLocal ||
-    (window.location.hostname === 'localhost' && window.location.port === '3000') ||
-    window.location.hostname.startsWith('192.168.') ||
-    window.location.hostname.startsWith('10.');
+// Se deshabilita la detección automática de red local para asegurar 
+// que toda la aplicación se conecte siempre a la nube (Firebase).
+const isLocalServer = forceLocal;
 
 // Initialize Socket only if in local mode
 let socket = null;
@@ -78,12 +76,17 @@ export const backend = {
             // Socket.io request-response pattern
             return new Promise((resolve) => {
                 const requestId = Date.now() + Math.random();
+
+                const timeoutId = setTimeout(() => {
+                    console.warn(`Timeout waiting for db:get response for path: ${path}`);
+                    resolve(null);
+                }, 5000);
+
                 socket.emit('db:get', { path, requestId });
                 socket.once(`db:get:response:${requestId}`, (data) => {
+                    clearTimeout(timeoutId);
                     resolve(data);
                 });
-                // Timeout fallback?
-                setTimeout(() => resolve(null), 2000);
             });
         }
     },
