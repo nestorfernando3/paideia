@@ -4,6 +4,11 @@
 
 **Paideia** (Παιδεία) es una aplicación web inspirada en la tradición griega de formación integral. Permite a docentes y estudiantes interactuar en tiempo real durante las clases a través de 7 herramientas pedagógicas diseñadas para mejorar la metacognición, la comprensión y la reflexión.
 
+Estado actual:
+- **Modo online** con Supabase
+- **Modo local** LAN con Socket.io
+- **Despliegue web** en GitHub Pages
+
 ## 🌿 Demo
 
 👉 **[Abrir Paideia](https://nestorfernando3.github.io/paideia/)**
@@ -50,9 +55,11 @@ Los estudiantes son guiados automáticamente a través de las herramientas activ
 - Badge de rol (Docente/Estudiante) en el header
 - Inputs con focus state premium (sombra interior + fondo blanco)
 
-### 🔥 Tiempo Real (v1.2+)
+### 🔥 Tiempo Real (v1.4)
 - Sincronización multi-dispositivo mediante **Supabase Postgres + Realtime**
 - Autenticación anónima automática
+- Actualización en vivo en vistas docentes
+- Persistencia desacoplada en `sessions` + `tool_entries`
 - Código de acceso docente para proteger la creación de sesiones
 
 ### 📄 Exportación PDF (v1.1)
@@ -124,6 +131,12 @@ VITE_SUPABASE_ANON_KEY=...
 3. Ejecuta el SQL de [supabase/schema.sql](./supabase/schema.sql).
 4. Copia la URL del proyecto y la `anon key` a `.env`.
 
+El esquema crea:
+- `sessions`
+- `tool_entries`
+- políticas RLS para usuarios autenticados anónimamente
+- publicación Realtime para ambas tablas
+
 ### GitHub Pages
 
 Si despliegas con Actions, crea estos secrets del repositorio:
@@ -137,6 +150,14 @@ VITE_SUPABASE_ANON_KEY
 
 - **[Guía del Docente](https://nestorfernando3.github.io/paideia/#/guia-docente)** — Manual completo con tips pedagógicos
 - **[Guía del Estudiante](https://nestorfernando3.github.io/paideia/#/guia-estudiante)** — Instrucciones simples para alumnos
+
+## 🧪 Validación Reciente
+
+- Creación de sesión docente validada contra Supabase
+- Ingreso de estudiante con código de sesión validado
+- Persistencia de respuestas en `Gnosis`, `Noesis` y `Aporia`
+- Persistencia de dudas y votos validada en `tool_entries`
+- Build de producción validado con `npm run build`
 
 ## 📝 Licencia
 

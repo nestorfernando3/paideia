@@ -5,7 +5,7 @@
 
 import { renderHeader } from '../components/header.js';
 import { getToolById } from '../components/toolCard.js';
-import { getCurrentSession, isTeacher, getStudentId } from '../utils/session.js';
+import { getCurrentSession, isTeacher, getStudentId, getStudentName } from '../utils/session.js';
 import { addToolEntry, getToolEntries, getToolEntriesAsync } from '../utils/storage.js';
 import { renderToolLayout } from '../components/layout.js';
 import { initTeacherToolLiveSync } from '../utils/live.js';
@@ -145,7 +145,7 @@ export function initAnamnesis() {
       if (!learned || !wonder || !connected) return;
 
       const studentId = getStudentId();
-      const student = localStorage.getItem('studentName');
+      const student = getStudentName();
       addToolEntry(session.code, 'anamnesis', { learned, wonder, connected, studentId, student });
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });

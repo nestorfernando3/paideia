@@ -2,6 +2,24 @@
 
 Todas las actualizaciones notables de este proyecto serán documentadas en este archivo.
 
+## [1.4.0] - 2026-03-10
+
+### Añadido
+- **Modo Online en Supabase**: La aplicación migra su persistencia online a **Supabase** con Auth anónima, Postgres y Realtime.
+- **Esquema versionado**: Nuevo archivo `supabase/schema.sql` para crear `sessions`, `tool_entries`, RLS y publicación Realtime.
+- **Variables de entorno y despliegue**: Se documentan `.env`, `.env.example` y secrets de GitHub Actions para Pages y releases.
+- **Sincronización docente en vivo**: Las vistas docentes reciben actualizaciones automáticas en herramientas como `Noesis`.
+
+### Mejorado
+- **Persistencia concurrente**: Las respuestas se almacenan en `tool_entries`, evitando que varios estudiantes sobrescriban un blob compartido.
+- **Mensajes operativos**: Los errores online ahora distinguen configuración faltante de Supabase, tablas ausentes o problemas de políticas.
+- **Documentación técnica**: README y referencia interna alineados con la nueva arquitectura.
+
+### Corregido
+- **Sesiones online**: La creación y la unión esperan confirmación real del backend antes de asumir que la sesión existe.
+- **Nombre del estudiante**: Las herramientas vuelven a guardar correctamente el nombre del estudiante junto con cada entrada.
+- **Validación e2e**: Se comprobó el flujo docente/estudiante con creación de sesión, respuestas, dudas y votos persistidos en Supabase.
+
 ## [1.3.0] - 2026-02-19
 
 ### Añadido

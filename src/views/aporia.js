@@ -5,7 +5,7 @@
 
 import { renderHeader } from '../components/header.js';
 import { getToolById } from '../components/toolCard.js';
-import { getCurrentSession, isTeacher, getStudentId } from '../utils/session.js';
+import { getCurrentSession, isTeacher, getStudentId, getStudentName } from '../utils/session.js';
 import { addToolEntry, getToolEntries, updateToolEntry, getToolEntriesAsync } from '../utils/storage.js';
 import { renderToolLayout } from '../components/layout.js';
 import { initTeacherToolLiveSync } from '../utils/live.js';
@@ -138,7 +138,7 @@ export function initAporia() {
   const okBtn = document.getElementById('aporia-ok');
   if (okBtn && !okBtn.disabled) {
     okBtn.addEventListener('click', () => {
-      const student = localStorage.getItem('studentName');
+      const student = getStudentName();
       addToolEntry(session.code, 'aporia', { type: 'status', status: 'ok', studentId, student });
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
@@ -148,7 +148,7 @@ export function initAporia() {
   const lostBtn = document.getElementById('aporia-lost');
   if (lostBtn && !lostBtn.disabled) {
     lostBtn.addEventListener('click', () => {
-      const student = localStorage.getItem('studentName');
+      const student = getStudentName();
       addToolEntry(session.code, 'aporia', { type: 'status', status: 'lost', studentId, student });
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     });
@@ -161,7 +161,7 @@ export function initAporia() {
     const submitDoubt = () => {
       const text = textInput.value.trim();
       if (!text) return;
-      const student = localStorage.getItem('studentName');
+      const student = getStudentName();
       addToolEntry(session.code, 'aporia', { type: 'doubt', text, votes: 0, studentId, student });
       textInput.value = '';
       window.dispatchEvent(new HashChangeEvent('hashchange'));

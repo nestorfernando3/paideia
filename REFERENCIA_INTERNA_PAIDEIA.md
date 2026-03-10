@@ -14,7 +14,7 @@
 | **Repositorio** | [github.com/nestorfernando3/paideia](https://github.com/nestorfernando3/paideia) |
 | **Demo en vivo** | [nestorfernando3.github.io/paideia](https://nestorfernando3.github.io/paideia/) |
 | **Licencia** | MIT © 2025 |
-| **Versión actual** | v1.3.0 (febrero 2026) |
+| **Versión actual** | v1.4.0 (marzo 2026) |
 | **Localización** | Español colombiano (`es_CO`) |
 | **Autor/Desarrollador** | Nestor Fernando (nestorfernando3) |
 
@@ -133,8 +133,8 @@ Este flujo se implementa como un **Flujo Guiado** (v1.3) donde los estudiantes s
 | **Vite** | Build tool moderno (bundling, HMR) |
 | **Vanilla JavaScript (ES Modules)** | Lógica de la aplicación — sin frameworks (React, Vue, etc.) |
 | **CSS Custom Properties** | Sistema de diseño con 40+ tokens de diseño |
-| **Firebase Realtime Database** | Sincronización de datos en tiempo real (modo online) |
-| **Firebase Anonymous Auth** | Autenticación transparente sin registro |
+| **Supabase Postgres + Realtime** | Sincronización de datos en tiempo real (modo online) |
+| **Supabase Anonymous Auth** | Autenticación transparente sin registro |
 | **Socket.io** | Sincronización en tiempo real (modo local/offline) |
 | **Express.js** | Servidor HTTP para modo local |
 | **Electron** | Empaquetado como aplicación de escritorio |
@@ -145,16 +145,16 @@ Este flujo se implementa como un **Flujo Guiado** (v1.3) donde los estudiantes s
 
 ### 3.2 Modalidades de Despliegue
 
-1. **Modo Online (Firebase)**: La aplicación se despliega en GitHub Pages. Los datos se sincronizan a través de Firebase Realtime Database. Requiere conexión a internet.
+1. **Modo Online (Supabase)**: La aplicación se despliega en GitHub Pages. Los datos se sincronizan a través de Supabase Postgres + Realtime. Requiere conexión a internet.
 2. **Modo Local (LAN)**: Un servidor Node.js + Socket.io se ejecuta en el computador del docente. Docente y estudiantes se conectan a la misma red WiFi. No requiere internet. Se muestra un distintivo "📡 MODO LOCAL" en la cabecera. Se genera QR con la IP local para que los estudiantes se conecten escaneando.
 3. **Aplicación de Escritorio (Electron)**: Empaquetado como `.dmg` (macOS) y `.exe` (Windows) para distribución directa.
 
 ### 3.3 Flujo de Datos
 
 ```text
-Estudiante (Navegador) ──► Firebase Realtime DB ──► Docente (Navegador)
-        │                       ▲                        │
-        └── localStorage ───────┘                        │
+Estudiante (Navegador) ──► Supabase (Auth + Postgres + Realtime) ──► Docente (Navegador)
+        │                               ▲                                 │
+        └────────────── localStorage ───┘                                 │
                         (respaldo offline)               │
                                                          ▼
                                                     Reporte PDF
@@ -166,6 +166,13 @@ En modo local:
 Estudiante (Navegador) ──► Socket.io ──► Servidor Node.js ──► Docente (Navegador)
                                           (PC del docente)
 ```
+
+### 3.3.1 Modelo de Datos Online
+
+- **Tabla `sessions`**: almacena `code`, `topic`, `active_tools`, estado de actividad y marcas de tiempo.
+- **Tabla `tool_entries`**: almacena cada respuesta individual con `session_code`, `tool_name`, `entry` y timestamps.
+- **RLS**: las tablas usan Row Level Security para usuarios autenticados anónimamente.
+- **Realtime**: `sessions` y `tool_entries` se publican en Supabase Realtime para refresco docente en vivo.
 
 ### 3.4 Roles de Usuario
 
@@ -236,6 +243,14 @@ Estudiante (Navegador) ──► Socket.io ──► Servidor Node.js ──► 
 - Corrección del "Gnosis Loop" (bug donde el flujo guiado enviaba al estudiante a la siguiente actividad sin completar la encuesta final).
 - Lógica de Finalización Inteligente.
 
+### v1.4.0 — 10 de marzo de 2026
+
+- **Migración a Supabase** para el modo online.
+- Nuevo esquema relacional con tablas `sessions` y `tool_entries`.
+- Realtime docente conectado desde la aplicación, sin depender solo de refresh manual.
+- Workflows de GitHub actualizados para construir con secrets `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`.
+- Corrección del guardado del nombre del estudiante en las entradas.
+
 ---
 
 ## 6. Fundamentos Pedagógicos y Filosóficos
@@ -296,7 +311,7 @@ La suite se alinea con múltiples marcos teóricos de la pedagogía moderna:
 **Modo Online:**
 
 - Dispositivos con navegador web moderno (Chrome, Safari, Firefox).
-- Conexión a internet (para Firebase).
+- Conexión a internet (para Supabase).
 
 **Modo Local (sin internet):**
 
@@ -310,7 +325,7 @@ La suite se alinea con múltiples marcos teóricos de la pedagogía moderna:
 
 ### 8.1 Almacenamiento Dual (Resiliencia Offline)
 
-La aplicación escribe simultáneamente a Firebase y a localStorage. Esto garantiza que si la conexión a internet se pierde momentáneamente, los datos del estudiante no se pierden.
+La aplicación escribe simultáneamente a Supabase y a localStorage. Esto garantiza que si la conexión a internet se pierde momentáneamente, los datos del estudiante no se pierden.
 
 ### 8.2 Modo Local con QR
 
@@ -318,7 +333,7 @@ El servidor local genera automáticamente un certificado SSL autofirmado (librer
 
 ### 8.3 Autenticación Zero-Friction
 
-Firebase Anonymous Auth permite que los estudiantes se unan sin registrarse, sin email, sin contraseña — simplemente ingresan un código de 4 letras y su nombre.
+Supabase Anonymous Auth permite que los estudiantes se unan sin registrarse, sin email, sin contraseña — simplemente ingresan un código de 4 letras y su nombre.
 
 ### 8.4 Progressive Web App (PWA)
 
@@ -335,7 +350,7 @@ Los reportes se generan completamente en el navegador del docente, sin necesidad
 ### 9.1 Software
 
 - **Nombre**: Paideia (Παιδεία)
-- **Versión**: 1.3.0
+- **Versión**: 1.4.0
 - **URL**: <https://nestorfernando3.github.io/paideia/>
 - **Repositorio**: <https://github.com/nestorfernando3/paideia>
 - **Lenguaje**: JavaScript (ES Modules)
@@ -355,6 +370,7 @@ Los reportes se generan completamente en el navegador del docente, sin necesidad
 | 18 feb 2026 | v1.1.0 (Exportación PDF) |
 | 18 feb 2026 | v1.2.0 (Firebase completo + Modo Guiado) |
 | 19 feb 2026 | v1.3.0 (Flujo Guiado visual + Micro-animaciones + Accesibilidad) |
+| 10 mar 2026 | v1.4.0 (Migración a Supabase + Realtime docente + endurecimiento de sesiones online) |
 
 ---
 

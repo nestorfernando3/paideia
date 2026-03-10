@@ -5,7 +5,7 @@
 
 import { renderHeader } from '../components/header.js';
 import { getToolById } from '../components/toolCard.js';
-import { getCurrentSession, isTeacher, getStudentId } from '../utils/session.js';
+import { getCurrentSession, isTeacher, getStudentId, getStudentName } from '../utils/session.js';
 import { addToolEntry, getToolEntries, getToolEntriesAsync } from '../utils/storage.js';
 import { showToast } from '../utils/ui.js';
 import { renderToolLayout } from '../components/layout.js';
@@ -235,7 +235,7 @@ export function initGnosis() {
       const session = getCurrentSession();
       if (!session) return;
       const studentId = getStudentId();
-      const student = localStorage.getItem('studentName');
+      const student = getStudentName();
       addToolEntry(session.code, 'gnosis', { phase: 'before', value: parseInt(slider.value), studentId, student });
       showToast('Percepción guardada', 'success');
       window.dispatchEvent(new HashChangeEvent('hashchange'));
@@ -256,7 +256,7 @@ export function initGnosis() {
       const session = getCurrentSession();
       if (!session) return;
       const studentId = getStudentId();
-      const student = localStorage.getItem('studentName');
+      const student = getStudentName();
       addToolEntry(session.code, 'gnosis', { phase: 'after', value: parseInt(sliderAfter.value), studentId, student });
       showToast('Reflexión final guardada', 'success');
       window.dispatchEvent(new HashChangeEvent('hashchange'));
