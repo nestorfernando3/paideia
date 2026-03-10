@@ -25,6 +25,7 @@ import { getAuth, signInAnonymously } from 'firebase/auth';
 let app = null;
 let db = null;
 let auth = null;
+let authReadyPromise = Promise.resolve(false);
 
 try {
     app = initializeApp(firebaseConfig);
@@ -32,17 +33,25 @@ try {
     auth = getAuth(app);
 
     // Auto sign-in anonymously
-    signInAnonymously(auth).then(() => {
-        console.log('Signed in anonymously to Firebase');
-    }).catch((error) => {
-        console.error('Error signing in anonymously:', error);
-    });
+    authReadyPromise = signInAnonymously(auth)
+        .then(() => {
+            console.log('Signed in anonymously to Firebase');
+            return true;
+        })
+        .catch((error) => {
+            console.error('Error signing in anonymously:', error);
+            return false;
+        });
 } catch (err) {
     console.warn('Firebase not configured — using localStorage fallback', err);
 }
 
 export function isFirebaseReady() {
     return db !== null && !firebaseConfig.apiKey.startsWith('FIREBASE_');
+}
+
+export async function waitForFirebaseAuth() {
+    return authReadyPromise;
 }
 
 export { db, auth, ref, set, get, update, onValue, child };

@@ -4,7 +4,7 @@
 // ==========================================================================
 
 import { io } from "socket.io-client";
-import { db, ref, get, set, update, onValue } from './firebase.js'; // Fallback to firebase imports
+import { db, ref, get, set, update, onValue, waitForFirebaseAuth } from './firebase.js'; // Fallback to firebase imports
 
 // Detection heuristic: 
 // 1. Explicit ?mode=local param
@@ -65,12 +65,17 @@ export const backend = {
 
     async get(path) {
         if (this.mode === 'FIREBASE') {
+            const isAuthenticated = await waitForFirebaseAuth();
+            if (!isAuthenticated) {
+                throw new Error('Firebase authentication is not ready');
+            }
+
             try {
                 const snapshot = await get(ref(db, path));
                 return snapshot.exists() ? snapshot.val() : null;
             } catch (e) {
                 console.error(e);
-                return null;
+                throw e;
             }
         } else {
             // Socket.io request-response pattern
@@ -93,6 +98,11 @@ export const backend = {
 
     async set(path, data) {
         if (this.mode === 'FIREBASE') {
+            const isAuthenticated = await waitForFirebaseAuth();
+            if (!isAuthenticated) {
+                throw new Error('Firebase authentication is not ready');
+            }
+
             return set(ref(db, path), data);
         } else {
             socket.emit('db:set', { path, data });
@@ -102,6 +112,11 @@ export const backend = {
 
     async update(path, data) {
         if (this.mode === 'FIREBASE') {
+            const isAuthenticated = await waitForFirebaseAuth();
+            if (!isAuthenticated) {
+                throw new Error('Firebase authentication is not ready');
+            }
+
             return update(ref(db, path), data);
         } else {
             // Reuse set logic for now, or implement specific update in server
@@ -114,9 +129,24 @@ export const backend = {
     // Note: This is an abstraction of onValue
     subscribe(path, callback) {
         if (this.mode === 'FIREBASE') {
-            return onValue(ref(db, path), (snapshot) => {
-                callback(snapshot.exists() ? snapshot.val() : null);
-            });
+            let unsubscribe = () => {};
+            let isActive = true;
+
+            waitForFirebaseAuth()
+                .then((isAuthenticated) => {
+                    if (!isActive || !isAuthenticated) return;
+                    unsubscribe = onValue(ref(db, path), (snapshot) => {
+                        callback(snapshot.exists() ? snapshot.val() : null);
+                    });
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+
+            return () => {
+                isActive = false;
+                unsubscribe();
+            };
         } else {
             // Local mode subscription
             // 1. Join the session room if the path implies a session

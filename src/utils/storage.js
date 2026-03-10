@@ -44,25 +44,27 @@ export async function getSessionAsync(code) {
     return getLocal().sessions[code] || null;
 }
 
-export function createSession(session) {
-    // Save locally first (synchronous)
+export async function createSession(session) {
+    await backend.set(`sessions/${session.code}`, session);
+
     const data = getLocal();
     data.sessions[session.code] = session;
     saveLocal(data);
 
-    // Then sync to Backend (async, fire-and-forget)
-    backend.set(`sessions/${session.code}`, session);
-
     return session;
 }
 
-export function updateSession(code, updates) {
+export async function updateSession(code, updates) {
     const data = getLocal();
-    if (data.sessions[code]) {
-        data.sessions[code] = { ...data.sessions[code], ...updates };
+    const currentSession = data.sessions[code];
+
+    if (currentSession) {
+        const nextSession = { ...currentSession, ...updates };
+        await backend.update(`sessions/${code}`, updates);
+        data.sessions[code] = nextSession;
         saveLocal(data);
-        backend.update(`sessions/${code}`, updates);
     }
+
     return data.sessions[code];
 }
 
@@ -84,7 +86,9 @@ export function addToolEntry(code, toolName, entry) {
 
     // Sync to Backend
     // Note: We overwrite the array to ensure consistency
-    backend.set(`sessions/${code}/tools/${toolName}`, session.tools[toolName]);
+    backend.set(`sessions/${code}/tools/${toolName}`, session.tools[toolName]).catch((error) => {
+        console.error('Error syncing tool entries:', error);
+    });
 
     return session.tools[toolName];
 }
@@ -136,7 +140,9 @@ export function updateToolEntry(code, toolName, index, updates) {
             ...updates,
         };
         saveLocal(data);
-        backend.set(`sessions/${code}/tools/${toolName}/${index}`, session.tools[toolName][index]);
+        backend.set(`sessions/${code}/tools/${toolName}/${index}`, session.tools[toolName][index]).catch((error) => {
+            console.error('Error syncing tool entry:', error);
+        });
     }
 }
 

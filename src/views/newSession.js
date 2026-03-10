@@ -63,8 +63,9 @@ export function renderNewSession() {
 export function initNewSession() {
   const form = document.getElementById('session-form');
   if (!form) return;
+  const submitBtn = form.querySelector('button[type="submit"]');
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const topic = document.getElementById('topic').value.trim();
@@ -85,8 +86,22 @@ export function initNewSession() {
       return;
     }
 
-    const session = startSession(topic, activeTools);
-    setCurrentSession(session, 'teacher');
-    window.location.hash = `/session/${session.code}`;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creando sesión...';
+    }
+
+    try {
+      const session = await startSession(topic, activeTools);
+      setCurrentSession(session, 'teacher');
+      window.location.hash = `/session/${session.code}`;
+    } catch (error) {
+      console.error(error);
+      alert('No se pudo publicar la sesión en línea. Verifica la conexión e inténtalo de nuevo.');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Crear sesión';
+      }
+    }
   });
 }

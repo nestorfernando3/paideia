@@ -150,13 +150,18 @@ export function initSession() {
   // End session (teacher only)
   const endBtn = document.getElementById('end-session-btn');
   if (endBtn) {
-    endBtn.addEventListener('click', () => {
+    endBtn.addEventListener('click', async () => {
       const session = getCurrentSession();
       if (!session) return;
       if (confirm('¿Estás seguro de que deseas finalizar la sesión?')) {
-        endSession(session.code);
-        clearCurrentSession();
-        window.location.hash = '/';
+        try {
+          await endSession(session.code);
+          clearCurrentSession();
+          window.location.hash = '/';
+        } catch (error) {
+          console.error(error);
+          alert('No se pudo finalizar la sesión en línea. Inténtalo de nuevo.');
+        }
       }
     });
   }

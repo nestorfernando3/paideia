@@ -25,7 +25,7 @@ export function generateGreekCode(latinCode) {
     }).join('');
 }
 
-export function startSession(topic, activeTools) {
+export async function startSession(topic, activeTools) {
     const code = generateCode();
     const session = {
         code,
@@ -52,7 +52,7 @@ export async function joinSessionAsync(code) {
     return session;
 }
 
-export function endSession(code) {
+export async function endSession(code) {
     return updateSession(code, { active: false, endedAt: new Date().toISOString() });
 }
 

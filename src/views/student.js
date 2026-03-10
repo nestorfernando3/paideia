@@ -99,8 +99,19 @@ export function initStudentJoin() {
     joinBtn.disabled = true;
     joinBtn.textContent = 'Buscando...';
 
-    // Use async version that checks Firebase first
-    const session = await joinSessionAsync(code);
+    let session = null;
+
+    try {
+      // Use async version that checks Firebase first
+      session = await joinSessionAsync(code);
+    } catch (error) {
+      console.error(error);
+      loadingEl.style.display = 'none';
+      joinBtn.disabled = false;
+      joinBtn.textContent = 'Entrar a la sesión';
+      alert('No fue posible consultar las sesiones en línea. Verifica la conexión e inténtalo de nuevo.');
+      return;
+    }
 
     loadingEl.style.display = 'none';
     joinBtn.disabled = false;
