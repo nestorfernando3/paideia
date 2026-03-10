@@ -45,7 +45,7 @@ export function joinSession(code) {
     return session;
 }
 
-// Async join — checks Firebase first, then local fallback
+// Async join — checks Supabase first, then local fallback
 export async function joinSessionAsync(code) {
     const session = await getSessionAsync(code.toUpperCase());
     if (!session) return null;

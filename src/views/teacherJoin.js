@@ -5,6 +5,7 @@
 
 import { renderHeader } from '../components/header.js';
 import { joinSessionAsync, setCurrentSession } from '../utils/session.js';
+import { getOnlineSessionErrorMessage } from '../utils/online-errors.js';
 
 export function renderTeacherJoin() {
     return `
@@ -102,7 +103,7 @@ export function initTeacherJoin() {
                 }
             } catch (err) {
                 console.error(err);
-                alert('Error conectando con la base de datos');
+                alert(getOnlineSessionErrorMessage(err, 'consultar la sesión en línea'));
                 if (btn) {
                     btn.disabled = false;
                     btn.textContent = 'Entrar al panel';

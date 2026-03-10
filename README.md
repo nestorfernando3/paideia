@@ -50,8 +50,8 @@ Los estudiantes son guiados automáticamente a través de las herramientas activ
 - Badge de rol (Docente/Estudiante) en el header
 - Inputs con focus state premium (sombra interior + fondo blanco)
 
-### 🔥 Tiempo Real (v1.2)
-- Sincronización multi-dispositivo mediante **Firebase Realtime Database**
+### 🔥 Tiempo Real (v1.2+)
+- Sincronización multi-dispositivo mediante **Supabase Postgres + Realtime**
 - Autenticación anónima automática
 - Código de acceso docente para proteger la creación de sesiones
 
@@ -65,7 +65,7 @@ Los estudiantes son guiados automáticamente a través de las herramientas activ
 - **Vite** — Build tool moderno
 - **Vanilla JavaScript** — Sin frameworks, rendimiento máximo
 - **CSS Custom Properties** — Sistema de diseño con 40+ tokens
-- **Firebase** — Realtime Database + Anonymous Auth
+- **Supabase** — Postgres + Realtime + Anonymous Auth
 - **QR Code** — Generación de códigos QR para compartir sesiones
 - **GitHub Actions** — CI/CD automático con GitHub Pages
 - **jsPDF + AutoTable** — Generación de reportes PDF en cliente
@@ -100,11 +100,37 @@ git clone https://github.com/nestorfernando3/paideia.git
 # Instalar dependencias
 npm install
 
+# Configurar Supabase
+cp .env.example .env
+
 # Servidor de desarrollo
 npm run dev
 
 # Build de producción
 npm run build
+```
+
+### Variables de entorno
+
+```bash
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+```
+
+### Esquema Supabase
+
+1. Crea un proyecto en Supabase.
+2. Activa `Authentication > Providers > Anonymous`.
+3. Ejecuta el SQL de [supabase/schema.sql](./supabase/schema.sql).
+4. Copia la URL del proyecto y la `anon key` a `.env`.
+
+### GitHub Pages
+
+Si despliegas con Actions, crea estos secrets del repositorio:
+
+```bash
+VITE_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY
 ```
 
 ## 📖 Guías

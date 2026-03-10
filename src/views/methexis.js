@@ -8,6 +8,7 @@ import { getToolById } from '../components/toolCard.js';
 import { getCurrentSession, isTeacher, getStudentId } from '../utils/session.js';
 import { addToolEntry, getToolEntries, getToolEntriesAsync } from '../utils/storage.js';
 import { renderToolLayout } from '../components/layout.js';
+import { initTeacherToolLiveSync } from '../utils/live.js';
 
 const tool = getToolById('methexis');
 
@@ -114,6 +115,7 @@ function renderNoSession() {
 }
 
 export function initMethexis() {
+  initTeacherToolLiveSync('methexis');
   const session = getCurrentSession();
   if (!session) return;
 

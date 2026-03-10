@@ -5,6 +5,7 @@
 
 import { renderHeader } from '../components/header.js';
 import { joinSessionAsync, setCurrentSession, setStudentName, getStudentId } from '../utils/session.js';
+import { getOnlineSessionErrorMessage } from '../utils/online-errors.js';
 
 export function renderStudentJoin() {
   return `
@@ -102,14 +103,14 @@ export function initStudentJoin() {
     let session = null;
 
     try {
-      // Use async version that checks Firebase first
+      // Use async version that checks Supabase first
       session = await joinSessionAsync(code);
     } catch (error) {
       console.error(error);
       loadingEl.style.display = 'none';
       joinBtn.disabled = false;
       joinBtn.textContent = 'Entrar a la sesión';
-      alert('No fue posible consultar las sesiones en línea. Verifica la conexión e inténtalo de nuevo.');
+      alert(getOnlineSessionErrorMessage(error, 'consultar las sesiones en línea'));
       return;
     }
 

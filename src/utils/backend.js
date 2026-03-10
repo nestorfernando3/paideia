@@ -1,10 +1,10 @@
 // ==========================================================================
 // PAIDEIA — Backend Adapter
-// Abstracts Firebase vs Local Socket.io logic
+// Abstracts Supabase vs Local Socket.io logic
 // ==========================================================================
 
 import { io } from "socket.io-client";
-import { db, ref, get, set, update, onValue, waitForFirebaseAuth } from './firebase.js'; // Fallback to firebase imports
+import { supabase, waitForSupabaseAuth, getSupabaseAuthError } from './supabase.js';
 
 // Detection heuristic: 
 // 1. Explicit ?mode=local param
@@ -13,8 +13,8 @@ import { db, ref, get, set, update, onValue, waitForFirebaseAuth } from './fireb
 const urlParams = new URLSearchParams(window.location.search);
 const forceLocal = urlParams.get('mode') === 'local';
 
-// Se deshabilita la detección automática de red local para asegurar 
-// que toda la aplicación se conecte siempre a la nube (Firebase).
+// Se deshabilita la detección automática de red local para asegurar
+// que toda la aplicación se conecte siempre a la nube (Supabase).
 const isLocalServer = forceLocal;
 
 // Initialize Socket only if in local mode
@@ -58,25 +58,15 @@ if (isLocalServer) {
 }
 
 export const backend = {
-    mode: isLocalServer ? 'LOCAL' : 'FIREBASE',
+    mode: isLocalServer ? 'LOCAL' : 'SUPABASE',
 
     // Network URL to use in QR codes (shows the real LAN IP, not localhost)
     get networkUrl() { return _networkUrl; },
 
     async get(path) {
-        if (this.mode === 'FIREBASE') {
-            const isAuthenticated = await waitForFirebaseAuth();
-            if (!isAuthenticated) {
-                throw new Error('Firebase authentication is not ready');
-            }
-
-            try {
-                const snapshot = await get(ref(db, path));
-                return snapshot.exists() ? snapshot.val() : null;
-            } catch (e) {
-                console.error(e);
-                throw e;
-            }
+        if (this.mode === 'SUPABASE') {
+            await ensureCloudAuth();
+            return getSupabasePath(path);
         } else {
             // Socket.io request-response pattern
             return new Promise((resolve) => {
@@ -97,13 +87,9 @@ export const backend = {
     },
 
     async set(path, data) {
-        if (this.mode === 'FIREBASE') {
-            const isAuthenticated = await waitForFirebaseAuth();
-            if (!isAuthenticated) {
-                throw new Error('Firebase authentication is not ready');
-            }
-
-            return set(ref(db, path), data);
+        if (this.mode === 'SUPABASE') {
+            await ensureCloudAuth();
+            return setSupabasePath(path, data);
         } else {
             socket.emit('db:set', { path, data });
             return Promise.resolve();
@@ -111,13 +97,9 @@ export const backend = {
     },
 
     async update(path, data) {
-        if (this.mode === 'FIREBASE') {
-            const isAuthenticated = await waitForFirebaseAuth();
-            if (!isAuthenticated) {
-                throw new Error('Firebase authentication is not ready');
-            }
-
-            return update(ref(db, path), data);
+        if (this.mode === 'SUPABASE') {
+            await ensureCloudAuth();
+            return updateSupabasePath(path, data);
         } else {
             // Reuse set logic for now, or implement specific update in server
             socket.emit('db:update', { path, updates: data });
@@ -128,16 +110,82 @@ export const backend = {
     // Subscription
     // Note: This is an abstraction of onValue
     subscribe(path, callback) {
-        if (this.mode === 'FIREBASE') {
+        if (this.mode === 'SUPABASE') {
             let unsubscribe = () => {};
             let isActive = true;
 
-            waitForFirebaseAuth()
-                .then((isAuthenticated) => {
-                    if (!isActive || !isAuthenticated) return;
-                    unsubscribe = onValue(ref(db, path), (snapshot) => {
-                        callback(snapshot.exists() ? snapshot.val() : null);
-                    });
+            ensureCloudAuth()
+                .then(async () => {
+                    if (!isActive) return;
+
+                    callback(await getSupabasePath(path));
+
+                    const descriptor = parseSupabasePath(path);
+                    if (!descriptor.code) return;
+
+                    const channels = [];
+                    const notify = async () => {
+                        if (!isActive) return;
+                        callback(await getSupabasePath(path));
+                    };
+
+                    if (descriptor.kind === 'session') {
+                        channels.push(
+                            supabase
+                                .channel(`session:${descriptor.code}:${Math.random().toString(36).slice(2, 8)}`)
+                                .on(
+                                    'postgres_changes',
+                                    {
+                                        event: '*',
+                                        schema: 'public',
+                                        table: 'sessions',
+                                        filter: `code=eq.${descriptor.code}`,
+                                    },
+                                    notify
+                                )
+                                .subscribe()
+                        );
+                    } else if (descriptor.kind === 'tools') {
+                        channels.push(
+                            supabase
+                                .channel(`tools:${descriptor.code}:${Math.random().toString(36).slice(2, 8)}`)
+                                .on(
+                                    'postgres_changes',
+                                    {
+                                        event: '*',
+                                        schema: 'public',
+                                        table: 'tool_entries',
+                                        filter: `session_code=eq.${descriptor.code}`,
+                                    },
+                                    notify
+                                )
+                                .subscribe()
+                        );
+                    } else {
+                        channels.push(
+                            supabase
+                                .channel(`tool:${descriptor.code}:${descriptor.toolName}:${Math.random().toString(36).slice(2, 8)}`)
+                                .on(
+                                    'postgres_changes',
+                                    {
+                                        event: '*',
+                                        schema: 'public',
+                                        table: 'tool_entries',
+                                        filter: `session_code=eq.${descriptor.code}`,
+                                    },
+                                    async (payload) => {
+                                        if (payload.new?.tool_name && payload.new.tool_name !== descriptor.toolName) return;
+                                        if (payload.old?.tool_name && payload.old.tool_name !== descriptor.toolName) return;
+                                        await notify();
+                                    }
+                                )
+                                .subscribe()
+                        );
+                    }
+
+                    unsubscribe = async () => {
+                        await Promise.all(channels.map((channel) => supabase.removeChannel(channel)));
+                    };
                 })
                 .catch((error) => {
                     console.error(error);
@@ -145,7 +193,7 @@ export const backend = {
 
             return () => {
                 isActive = false;
-                unsubscribe();
+                void unsubscribe();
             };
         } else {
             // Local mode subscription
@@ -191,8 +239,271 @@ export const backend = {
             return () => socket.off('db:update', listener);
         }
     }
+    ,
+
+    async insertToolEntry(code, toolName, entry) {
+        if (this.mode === 'SUPABASE') {
+            await ensureCloudAuth();
+            return insertSupabaseToolEntry(code, toolName, entry);
+        }
+
+        socket.emit('db:set', { path: `sessions/${code}/tools/${toolName}`, data: entry });
+        return Promise.resolve(entry);
+    },
+
+    async updateToolEntry(code, toolName, entryId, updates) {
+        if (this.mode === 'SUPABASE') {
+            await ensureCloudAuth();
+            return updateSupabaseToolEntry(code, toolName, entryId, updates);
+        }
+
+        socket.emit('db:update', { path: `sessions/${code}/tools/${toolName}/${entryId}`, updates });
+        return Promise.resolve(updates);
+    },
+
+    async listToolEntries(code, toolName) {
+        if (this.mode === 'SUPABASE') {
+            await ensureCloudAuth();
+            return fetchToolEntries(code, toolName);
+        }
+
+        return this.get(`sessions/${code}/tools/${toolName}`);
+    },
+
+    async listAllToolEntries(code) {
+        if (this.mode === 'SUPABASE') {
+            await ensureCloudAuth();
+            return fetchAllToolEntries(code);
+        }
+
+        return this.get(`sessions/${code}/tools`);
+    }
 };
 
 function activePathsMatch(d1, d2) {
     return d1.startsWith(d2) || d2.startsWith(d1);
+}
+
+async function ensureCloudAuth() {
+    const isAuthenticated = await waitForSupabaseAuth();
+    if (isAuthenticated) return;
+
+    const authError = getSupabaseAuthError();
+    if (authError) throw authError;
+    throw new Error('Supabase authentication is not ready');
+}
+
+async function getSupabasePath(path) {
+    const descriptor = parseSupabasePath(path);
+    const session = await fetchSessionRow(descriptor.code);
+
+    if (!session) return null;
+
+    if (descriptor.kind === 'session') return session;
+    if (descriptor.kind === 'tools') return fetchAllToolEntries(descriptor.code);
+
+    const entries = await fetchToolEntries(descriptor.code, descriptor.toolName);
+    if (descriptor.kind === 'toolEntries') {
+        return entries;
+    }
+
+    return entries[descriptor.index] || null;
+}
+
+async function setSupabasePath(path, data) {
+    const descriptor = parseSupabasePath(path);
+
+    if (descriptor.kind === 'session') {
+        const row = mapSessionToRow(data);
+        const { error } = await supabase.from('sessions').upsert(row, { onConflict: 'code' });
+        if (error) throw error;
+        return data;
+    }
+    throw new Error(`Unsupported set path in Supabase backend: ${path}`);
+}
+
+async function updateSupabasePath(path, data) {
+    const descriptor = parseSupabasePath(path);
+
+    if (descriptor.kind !== 'session') {
+        return setSupabasePath(path, data);
+    }
+
+    const { error } = await supabase
+        .from('sessions')
+        .update(mapPartialSessionToRow(data))
+        .eq('code', descriptor.code);
+    if (error) throw error;
+
+    return data;
+}
+
+function parseSupabasePath(path) {
+    const parts = path.split('/').filter(Boolean);
+    if (parts[0] !== 'sessions' || !parts[1]) {
+        throw new Error(`Unsupported backend path: ${path}`);
+    }
+
+    const descriptor = {
+        code: parts[1].toUpperCase(),
+        kind: 'session',
+        toolName: null,
+        index: null,
+    };
+
+    if (!parts[2]) {
+        return descriptor;
+    }
+
+    if (parts[2] !== 'tools') {
+        throw new Error(`Unsupported backend path: ${path}`);
+    }
+
+    descriptor.kind = 'tools';
+    if (!parts[3]) {
+        return descriptor;
+    }
+
+    descriptor.toolName = parts[3];
+    descriptor.kind = 'toolEntries';
+
+    if (parts[4] === undefined) {
+        return descriptor;
+    }
+
+    descriptor.index = Number(parts[4]);
+    descriptor.kind = 'toolEntry';
+    return descriptor;
+}
+
+async function fetchSessionRow(code) {
+    const { data, error } = await supabase
+        .from('sessions')
+        .select('code, topic, active_tools, created_at, active, ended_at')
+        .eq('code', code)
+        .maybeSingle();
+
+    if (error) throw error;
+    return data ? mapRowToSession(data) : null;
+}
+
+function mapRowToSession(row) {
+    return {
+        code: row.code,
+        topic: row.topic,
+        activeTools: Array.isArray(row.active_tools) ? row.active_tools : [],
+        createdAt: row.created_at,
+        active: row.active,
+        endedAt: row.ended_at || undefined,
+        tools: {},
+    };
+}
+
+function mapSessionToRow(session) {
+    return {
+        code: session.code,
+        topic: session.topic,
+        active_tools: session.activeTools || [],
+        created_at: session.createdAt,
+        active: session.active,
+        ended_at: session.endedAt || null,
+    };
+}
+
+function mapPartialSessionToRow(session) {
+    const updates = {};
+
+    if ('topic' in session) updates.topic = session.topic;
+    if ('activeTools' in session) updates.active_tools = session.activeTools || [];
+    if ('createdAt' in session) updates.created_at = session.createdAt;
+    if ('active' in session) updates.active = session.active;
+    if ('endedAt' in session) updates.ended_at = session.endedAt || null;
+
+    return updates;
+}
+
+async function insertSupabaseToolEntry(code, toolName, entry) {
+    const { data, error } = await supabase
+        .from('tool_entries')
+        .insert({
+            session_code: code,
+            tool_name: toolName,
+            entry,
+        })
+        .select('id, entry, created_at')
+        .single();
+
+    if (error) throw error;
+    return mapToolEntryRow(data);
+}
+
+async function updateSupabaseToolEntry(code, toolName, entryId, updates) {
+    const { data: existing, error: existingError } = await supabase
+        .from('tool_entries')
+        .select('id, session_code, tool_name, entry, created_at')
+        .eq('id', entryId)
+        .eq('session_code', code)
+        .eq('tool_name', toolName)
+        .single();
+
+    if (existingError) throw existingError;
+
+    const mergedEntry = {
+        ...(existing.entry || {}),
+        ...updates,
+    };
+
+    const { data, error } = await supabase
+        .from('tool_entries')
+        .update({ entry: mergedEntry })
+        .eq('id', entryId)
+        .eq('session_code', code)
+        .eq('tool_name', toolName)
+        .select('id, entry, created_at')
+        .single();
+
+    if (error) throw error;
+    return mapToolEntryRow(data);
+}
+
+async function fetchToolEntries(code, toolName) {
+    const { data, error } = await supabase
+        .from('tool_entries')
+        .select('id, entry, created_at')
+        .eq('session_code', code)
+        .eq('tool_name', toolName)
+        .order('created_at', { ascending: true })
+        .order('id', { ascending: true });
+
+    if (error) throw error;
+    return Array.isArray(data) ? data.map(mapToolEntryRow) : [];
+}
+
+async function fetchAllToolEntries(code) {
+    const { data, error } = await supabase
+        .from('tool_entries')
+        .select('id, tool_name, entry, created_at')
+        .eq('session_code', code)
+        .order('created_at', { ascending: true })
+        .order('id', { ascending: true });
+
+    if (error) throw error;
+
+    const grouped = {};
+    for (const row of data || []) {
+        if (!grouped[row.tool_name]) {
+            grouped[row.tool_name] = [];
+        }
+        grouped[row.tool_name].push(mapToolEntryRow(row));
+    }
+
+    return grouped;
+}
+
+function mapToolEntryRow(row) {
+    return {
+        ...(row.entry || {}),
+        timestamp: row.entry?.timestamp || row.created_at,
+        _rowId: row.id,
+    };
 }

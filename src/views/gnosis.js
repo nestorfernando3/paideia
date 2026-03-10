@@ -10,6 +10,7 @@ import { addToolEntry, getToolEntries, getToolEntriesAsync } from '../utils/stor
 import { showToast } from '../utils/ui.js';
 import { renderToolLayout } from '../components/layout.js';
 import { getNextTool } from '../utils/flow.js';
+import { initTeacherToolLiveSync } from '../utils/live.js';
 
 const tool = getToolById('gnosis');
 
@@ -219,6 +220,7 @@ function renderNoSession() {
 
 
 export function initGnosis() {
+  initTeacherToolLiveSync('gnosis');
   // Before slider
   const slider = document.getElementById('gnosis-slider');
   const valueEl = document.getElementById('gnosis-value');
@@ -261,7 +263,7 @@ export function initGnosis() {
     });
   }
 
-  // Refresh button (teacher) — async Firebase fetch
+  // Refresh button (teacher) — async cloud fetch
   const refreshBtn = document.getElementById('gnosis-refresh');
   if (refreshBtn) {
     refreshBtn.addEventListener('click', async () => {
@@ -275,5 +277,3 @@ export function initGnosis() {
     });
   }
 }
-
-

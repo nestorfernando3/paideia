@@ -8,6 +8,7 @@ import { getToolById } from '../components/toolCard.js';
 import { getCurrentSession, isTeacher, getStudentId } from '../utils/session.js';
 import { addToolEntry, getToolEntries, getToolEntriesAsync } from '../utils/storage.js';
 import { renderToolLayout } from '../components/layout.js';
+import { initTeacherToolLiveSync } from '../utils/live.js';
 
 const tool = getToolById('noesis');
 
@@ -136,6 +137,7 @@ function renderNoSession() {
 }
 
 export function initNoesis() {
+  initTeacherToolLiveSync('noesis');
   const session = getCurrentSession();
   if (!session) return;
 

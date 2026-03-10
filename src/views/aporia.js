@@ -8,6 +8,7 @@ import { getToolById } from '../components/toolCard.js';
 import { getCurrentSession, isTeacher, getStudentId } from '../utils/session.js';
 import { addToolEntry, getToolEntries, updateToolEntry, getToolEntriesAsync } from '../utils/storage.js';
 import { renderToolLayout } from '../components/layout.js';
+import { initTeacherToolLiveSync } from '../utils/live.js';
 
 const tool = getToolById('aporia');
 
@@ -128,6 +129,7 @@ function renderNoSession() {
 }
 
 export function initAporia() {
+  initTeacherToolLiveSync('aporia');
   const session = getCurrentSession();
   if (!session) return;
   const studentId = getStudentId();

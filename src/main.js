@@ -17,6 +17,7 @@ import { renderAnamnesis, initAnamnesis } from './views/anamnesis.js';
 import { renderGuiaDocente, initGuiaDocente } from './views/guia-docente.js';
 import { renderGuiaEstudiante, initGuiaEstudiante } from './views/guia-estudiante.js';
 import { renderTeacherJoin, initTeacherJoin } from './views/teacherJoin.js';
+import { clearRouteSubscriptions } from './utils/live.js';
 
 const app = document.getElementById('app');
 
@@ -46,6 +47,7 @@ function getRoute() {
 }
 
 function navigate() {
+    clearRouteSubscriptions();
     const path = getRoute();
 
     // Static routes

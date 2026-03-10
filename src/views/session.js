@@ -10,6 +10,8 @@ import { getSession, getAllToolEntriesAsync } from '../utils/storage.js';
 import { staggerChildren } from '../utils/animations.js';
 import { exportSessionPDF } from '../utils/pdf-exporter.js';
 import { backend } from '../utils/backend.js';
+import { getOnlineSessionErrorMessage } from '../utils/online-errors.js';
+import { initLiveSessionSync } from '../utils/live.js';
 
 export function renderSession(code) {
   let session = getCurrentSession();
@@ -128,6 +130,7 @@ export function renderSession(code) {
 }
 
 export function initSession() {
+  initLiveSessionSync();
   staggerChildren('#session-tools .tool-card', 80);
 
   // Auto-generate QR in Local Mode (teacher)
@@ -160,7 +163,7 @@ export function initSession() {
           window.location.hash = '/';
         } catch (error) {
           console.error(error);
-          alert('No se pudo finalizar la sesión en línea. Inténtalo de nuevo.');
+          alert(getOnlineSessionErrorMessage(error, 'finalizar la sesión en línea'));
         }
       }
     });

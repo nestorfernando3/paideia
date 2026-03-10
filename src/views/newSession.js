@@ -6,6 +6,7 @@
 import { renderHeader } from '../components/header.js';
 import { TOOLS, renderToolCard } from '../components/toolCard.js';
 import { startSession, setCurrentSession } from '../utils/session.js';
+import { getOnlineSessionErrorMessage } from '../utils/online-errors.js';
 
 export function renderNewSession() {
   const toolCheckboxes = TOOLS.map(t => `
@@ -97,7 +98,7 @@ export function initNewSession() {
       window.location.hash = `/session/${session.code}`;
     } catch (error) {
       console.error(error);
-      alert('No se pudo publicar la sesión en línea. Verifica la conexión e inténtalo de nuevo.');
+      alert(getOnlineSessionErrorMessage(error, 'publicar la sesión en línea'));
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Crear sesión';
