@@ -9,6 +9,14 @@ Estado actual:
 - **Modo local** LAN con Socket.io
 - **Despliegue web** en GitHub Pages
 
+## Open Source de un vistazo
+
+- **Licencia:** MIT
+- **Estado:** mantenimiento activo
+- **Audiencia principal:** docentes, instituciones educativas y colaboradores EdTech
+- **Señales públicas:** demo abierta, changelog, releases y despliegue automatizado con GitHub Actions
+- **Cómo contribuir:** revisa [CONTRIBUTING.md](./CONTRIBUTING.md), [SUPPORT.md](./SUPPORT.md) y [SECURITY.md](./SECURITY.md)
+
 ## 🌿 Demo
 
 👉 **[Abrir Paideia](https://nestorfernando3.github.io/paideia/)**
@@ -159,6 +167,13 @@ VITE_SUPABASE_ANON_KEY
 - Persistencia de dudas y votos validada en `tool_entries`
 - Build de producción validado con `npm run build`
 
+## 🤝 Comunidad
+
+- **Issues y bugs:** abre un issue con pasos de reproducción claros y contexto pedagógico cuando aplique.
+- **Pull requests:** mejoras de UX, accesibilidad, documentación, fiabilidad en tiempo real y localización son especialmente bienvenidas.
+- **Uso institucional o pilotos:** si quieres usar Paideia en un curso o institución, consulta [SUPPORT.md](./SUPPORT.md).
+- **Divulgación responsable:** vulnerabilidades o problemas de seguridad deben reportarse según [SECURITY.md](./SECURITY.md).
+
 ## 📝 Licencia
 
-MIT © 2025
+[MIT](./LICENSE) © 2025
