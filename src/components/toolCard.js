@@ -5,37 +5,37 @@
 export const TOOLS = [
     {
         id: 'gnosis',
-        name: 'Gnosis',
+        name: 'Autoevaluación',
         greek: 'Γνῶσις',
         letter: 'Γ',
         verb: 'conoce',
-        description: 'Autoconocimiento: ¿qué tan seguro te sientes con el tema?',
+        description: 'Autoevaluación: ¿qué tan seguro te sientes con el tema?',
         phase: 'before',
         phaseLabel: 'Antes de la clase',
     },
     {
         id: 'eikasia',
-        name: 'Eikasia',
+        name: 'Hipótesis',
         greek: 'Εἰκασία',
         letter: 'Ε',
         verb: 'anticipa',
-        description: 'Conjetura: formula una hipótesis antes de aprender.',
+        description: 'Hipótesis: formula una predicción antes de aprender.',
         phase: 'before',
         phaseLabel: 'Antes de la clase',
     },
     {
         id: 'aporia',
-        name: 'Aporia',
+        name: 'Dudas',
         greek: 'Ἀπορία',
         letter: 'Α',
         verb: 'duda',
-        description: 'Perplejidad: señala anónimamente dónde te pierdes.',
+        description: 'Dudas: señala anónimamente dónde te pierdes.',
         phase: 'during',
         phaseLabel: 'Durante la clase',
     },
     {
         id: 'noesis',
-        name: 'Noesis',
+        name: 'Comprensión',
         greek: 'Νόησις',
         letter: 'Ν',
         verb: 'comprende',
@@ -45,35 +45,61 @@ export const TOOLS = [
     },
     {
         id: 'methexis',
-        name: 'Methexis',
+        name: 'Conexión',
         greek: 'Μέθεξις',
         letter: 'Μ',
         verb: 'conecta',
-        description: 'Participación: conecta lo aprendido con tu mundo.',
+        description: 'Conexión: conecta lo aprendido con tu mundo.',
         phase: 'after',
         phaseLabel: 'Después de la clase',
     },
     {
         id: 'logos',
-        name: 'Logos',
+        name: 'Síntesis',
         greek: 'Λόγος',
         letter: 'Λ',
         verb: 'cristaliza',
-        description: 'Razón: resume toda la clase en una sola palabra.',
+        description: 'Síntesis: resume toda la clase en una sola palabra.',
         phase: 'after',
         phaseLabel: 'Después de la clase',
     },
     {
         id: 'anamnesis',
-        name: 'Anamnesis',
+        name: 'Reflexión',
         greek: 'Ἀνάμνησις',
         letter: 'Α',
         verb: 'reflexiona',
-        description: 'Reminiscencia: aprendí, me pregunto, conecté.',
+        description: 'Reflexión: aprendí, me pregunto, conecté.',
         phase: 'after',
         phaseLabel: 'Después de la clase',
     },
 ];
+
+export function renderToolIdentity(tool, opts = {}) {
+    const {
+        showLetter = true,
+        showVerb = true,
+        compact = false,
+        className = '',
+    } = opts;
+
+    const classes = [
+        'tool-identity',
+        compact ? 'tool-identity--compact' : '',
+        className,
+    ].filter(Boolean).join(' ');
+
+    return `
+      <div class="${classes}">
+        ${showLetter ? `<div class="tool-identity__letter">${tool.letter}</div>` : ''}
+        <div class="tool-identity__body">
+          <div class="tool-identity__name">${tool.name}</div>
+          <div class="tool-identity__greek">${tool.greek}</div>
+          ${showVerb ? `<div class="tool-identity__verb">${tool.verb}</div>` : ''}
+        </div>
+      </div>
+    `;
+}
 
 export function renderToolCard(tool, opts = {}) {
     const { selectable = false, selected = false, disabled = false } = opts;
@@ -81,17 +107,33 @@ export function renderToolCard(tool, opts = {}) {
     const selectedClass = selected ? 'tool-card--selected' : '';
     const disabledClass = disabled ? 'tool-card--disabled' : '';
 
-    const clickAttr = selectable
-        ? `data-tool-select="${tool.id}"`
-        : `onclick="window.location.hash='/tool/${tool.id}'"`;
+    const identity = renderToolIdentity(tool, {
+        showLetter: true,
+        showVerb: true,
+        compact: true,
+    });
+
+    if (selectable) {
+        return `
+        <button
+          type="button"
+          class="tool-card ${selectedClass} ${disabledClass}"
+          data-tool-select="${tool.id}"
+          aria-pressed="${selected ? 'true' : 'false'}"
+          ${disabled ? 'disabled' : ''}
+          id="card-${tool.id}"
+        >
+          ${identity}
+          <div class="tool-card__description">${tool.description}</div>
+        </button>
+      `;
+    }
 
     return `
-    <div class="tool-card ${selectedClass} ${disabledClass}" ${clickAttr} id="card-${tool.id}">
-      <div class="tool-card__letter">${tool.letter}</div>
-      <div class="tool-card__name">${tool.name}</div>
-      <div class="tool-card__verb">${tool.verb}</div>
+    <a class="tool-card ${selectedClass} ${disabledClass}" href="#/tool/${tool.id}" id="card-${tool.id}" aria-label="${tool.name} · ${tool.greek}">
+      ${identity}
       <div class="tool-card__description">${tool.description}</div>
-    </div>
+    </a>
   `;
 }
 

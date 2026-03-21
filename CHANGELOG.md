@@ -2,6 +2,17 @@
 
 Todas las actualizaciones notables de este proyecto serán documentadas en este archivo.
 
+## [Unreleased]
+
+### Mejorado
+- I've improved the designs for the Paideia platform, focusing on enhancing the visual hierarchy, whitespace, and overall sophistication of the desktop interface:
+- Paideia Home Screen Improvement: A refined landing page featuring elegant serif typography, a spacious layout with ivory and gold accents, and clear call-to-action cards for students and teachers.
+- Active Session Dashboard Improvement: A more dynamic teacher's dashboard with polished module cards, a prominent session code area, and improved quick-access tools for session management.
+- Module Analytics Screen Improvement: A data-focused screen that uses clean visualizations and clear typography to display student progress and response averages within a specific learning module.
+- Los módulos ahora muestran el título funcional en español y el nombre griego como subtítulo secundario, para una lectura más inmediata.
+- Se integraron los recursos visuales entregados por diseño, incluido el nuevo logo de Paideia, con una línea editorial marfil/oro más consistente.
+- Se ajustó la experiencia móvil en home, sesión activa y Gnosis para mantener legibilidad, jerarquía y botones táctiles claros en pantallas estrechas.
+
 ## [1.4.0] - 2026-03-10
 
 ### Añadido

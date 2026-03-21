@@ -64,9 +64,10 @@ export function renderToolLayout(tool, bodyHtml) {
       
       <div class="tool-view animate-fade-in">
         <div class="tool-view__header">
-          <div class="tool-view__greek-letter">${tool.letter}</div>
+          <div class="tool-view__letter">${tool.letter}</div>
           <h2 class="tool-view__name">${tool.name}</h2>
-          <p class="tool-view__concept">${tool.greek} · ${tool.verb}</p>
+          <p class="tool-view__subtitle">${tool.greek}</p>
+          <p class="tool-view__verb">${tool.verb}</p>
         </div>
         <div class="tool-view__body">
           ${bodyHtml}
@@ -93,7 +94,7 @@ function getToolLetter(id) {
  */
 function renderProgressSteps(currentToolId, activeTools, sessionCode, studentId) {
   // Build the ordered list of active tools in flow order
-  const middleTools = ['eikasia', 'noesis', 'aporia', 'methexis', 'logos', 'anamnesis'];
+  const middleTools = ['eikasia', 'aporia', 'noesis', 'methexis', 'logos', 'anamnesis'];
   const middleActive = middleTools.filter(t => activeTools.includes(t));
 
   // Full flow: Gnosis (start) → middle tools → Gnosis (end)

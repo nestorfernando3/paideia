@@ -38,13 +38,15 @@ export function renderHeader() {
   return `
     <header class="header">
       <a class="header__brand" href="#${homeHash}">
-        <span class="header__icon">✦</span>
-        <div style="display: flex; flex-direction: column;">
-            <div>
-                <span class="header__title">PAIDEIA</span>
-                ${modeHtml}
-            </div>
-            <span class="header__subtitle">Παιδεία · formación integral</span>
+        <span class="brand-mark header__logo" aria-hidden="true">
+          <img src="/paideia-logo.png" alt="" />
+        </span>
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <div style="display: flex; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
+            <span class="header__title">Paideia</span>
+            ${modeHtml}
+          </div>
+          <span class="header__subtitle">Παιδεία · formación integral</span>
         </div>
       </a>
       ${sessionHtml}

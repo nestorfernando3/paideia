@@ -9,12 +9,11 @@ import { getToolEntries } from './storage.js';
 export const TOOL_ORDER = [
     'gnosis',    // Initial check-in (Phase: before)
     'eikasia',   // Hypothesis
-    'noesis',    // Understanding check
     'aporia',    // Doubts
+    'noesis',    // Understanding check
     'methexis',  // Participation
     'logos',     // Summary word
     'anamnesis', // Reflection
-    'gnosis'     // Final check-in (Phase: after) - Logic handles re-entry
 ];
 
 /**
@@ -40,7 +39,7 @@ export function getNextTool(currentToolId, activeTools, sessionCode, studentId) 
     }
 
     // 2. Middle Tools
-    const middleTools = ['eikasia', 'noesis', 'aporia', 'methexis', 'logos', 'anamnesis'];
+    const middleTools = TOOL_ORDER.slice(1);
     middleTools.forEach(t => {
         if (activeTools.includes(t)) flow.push(t);
     });

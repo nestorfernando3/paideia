@@ -4,7 +4,7 @@
 // ==========================================================================
 
 import { renderHeader } from '../components/header.js';
-import { TOOLS, renderToolCard, getToolsByPhase } from '../components/toolCard.js';
+import { renderToolCard, getToolsByPhase } from '../components/toolCard.js';
 import { staggerChildren } from '../utils/animations.js';
 import { getSessions } from '../utils/storage.js';
 
@@ -24,6 +24,15 @@ export function renderHome() {
     { key: 'during', label: 'Durante la clase', icon: '⏯' },
     { key: 'after', label: 'Después de la clase', icon: '⏭' },
   ];
+
+  const homeNav = `
+    <nav class="home-nav" aria-label="Navegación principal">
+      <a href="#/" class="home-nav__link home-nav__link--active">Inicio</a>
+      <a href="#/guia-estudiante" class="home-nav__link">Guía del Estudiante</a>
+      <a href="#/guia-docente" class="home-nav__link">Guía del Docente</a>
+      <a href="mailto:nestor.del@pca.edu.co?subject=Paideia%20-%20Contacto" class="home-nav__link">Contacto</a>
+    </nav>
+  `;
 
   let toolGridHtml = '';
   phases.forEach(phase => {
@@ -72,40 +81,66 @@ export function renderHome() {
   return `
     ${renderHeader()}
     <main class="page">
-      <div class="page-header animate-fade-in">
-        <h1>✦ Paideia</h1>
-        <p class="subtitle" style="opacity: 0.8;">Παιδεία · el camino hacia la formación integral</p>
+      ${homeNav}
+      <div class="home-hero animate-fade-in">
+        <div class="home-hero__eyebrow">
+          <span class="badge badge--gold">Paideia</span>
+          <span class="home-hero__meta">Παιδεία · el camino hacia la formación integral</span>
+        </div>
+        <h1>El cultivo de la excelencia académica.</h1>
+        <p class="home-hero__lede">
+          Bienvenido al Liceo Digital de Paideia. Un espacio diseñado para la reflexión,
+          la enseñanza magistral y el aprendizaje riguroso.
+        </p>
       </div>
 
-      <div class="content-container" style="margin-bottom: var(--space-2xl);">
+      <div class="content-container content-container--home" style="margin-bottom: var(--space-2xl);">
         <div class="actions-grid">
-          <div class="action-card animate-card-enter stagger-1" onclick="window.location.hash='/join'">
+          <a class="action-card animate-card-enter stagger-1" href="#/join">
             <div class="action-card__icon">🎓</div>
-            <h3>Soy Estudiante</h3>
+            <h3>Soy estudiante</h3>
             <p>Unirse a una clase con código</p>
-            <button class="btn btn--outline btn--full">Unirse</button>
-          </div>
+            <span class="action-card__cta action-card__cta--outline">Unirse</span>
+          </a>
 
-          <div class="action-card animate-card-enter stagger-2" onclick="window.location.hash='/new-session'">
+          <a class="action-card animate-card-enter stagger-2" href="#/new-session">
             <div class="action-card__icon">🍎</div>
-            <h3>Soy Docente</h3>
+            <h3>Soy docente</h3>
             <p>Crear nueva sesión</p>
-            <button class="btn btn--gold btn--full">Crear Sesión</button>
-            <div style="margin-top: var(--space-sm); font-size: var(--text-xs);">
-                <a href="#/teacher-join" class="link-subtle" onclick="event.stopPropagation()">
-                    ¿Ya tienes sesión? Reingresar
-                </a>
-            </div>
-          </div>
+            <span class="action-card__cta action-card__cta--gold">Crear sesión</span>
+          </a>
         </div>
 
-        <div style="display: flex; gap: var(--space-md); justify-content: center; margin-top: var(--space-xl);">
+        <div class="home-secondary-actions">
+          <a href="#/teacher-join" class="link-subtle">
+            ¿Ya tienes sesión? Reingresar
+          </a>
           <a href="#/guia-docente" class="btn btn--ghost btn--sm">
             📖 Guía del Docente
           </a>
           <a href="#/guia-estudiante" class="btn btn--ghost btn--sm">
             🎓 Guía del Estudiante
           </a>
+        </div>
+
+        <div class="home-contact">
+          <span class="home-contact__label">Contacto directo</span>
+          <div class="home-contact__links">
+            <a
+              class="home-contact__link"
+              href="mailto:nestor.del@pca.edu.co?subject=Paideia%20-%20Contacto"
+            >
+              nestor.del@pca.edu.co
+            </a>
+            <a
+              class="home-contact__link"
+              href="https://wa.me/573128752012"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              WhatsApp: +57 312 875 2012
+            </a>
+          </div>
         </div>
       </div>
 

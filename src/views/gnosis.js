@@ -129,52 +129,121 @@ function renderGnosisTeacher(session) {
 
   const beforeEntries = entries.filter(e => e.phase === 'before');
   const afterEntries = entries.filter(e => e.phase === 'after');
+  const totalResponses = beforeEntries.length + afterEntries.length;
 
-  const avgBefore = beforeEntries.length > 0
-    ? (beforeEntries.reduce((s, e) => s + e.value, 0) / beforeEntries.length).toFixed(1)
+  const avgBeforeValue = beforeEntries.length > 0
+    ? beforeEntries.reduce((s, e) => s + e.value, 0) / beforeEntries.length
+    : null;
+  const avgAfterValue = afterEntries.length > 0
+    ? afterEntries.reduce((s, e) => s + e.value, 0) / afterEntries.length
+    : null;
+  const avgBefore = avgBeforeValue ? avgBeforeValue.toFixed(1) : '—';
+  const avgAfter = avgAfterValue ? avgAfterValue.toFixed(1) : '—';
+  const avgDelta = avgBeforeValue !== null && avgAfterValue !== null
+    ? (avgAfterValue - avgBeforeValue).toFixed(1)
     : '—';
-  const avgAfter = afterEntries.length > 0
-    ? (afterEntries.reduce((s, e) => s + e.value, 0) / afterEntries.length).toFixed(1)
-    : '—';
+  const deltaColor = avgBeforeValue !== null && avgAfterValue !== null
+    ? (avgAfterValue - avgBeforeValue) > 0 ? 'var(--olive)' : (avgAfterValue - avgBeforeValue) < 0 ? 'var(--terracotta)' : 'var(--gold)'
+    : 'var(--gold-dark)';
+  const coverage = beforeEntries.length > 0
+    ? Math.max(0, Math.min(100, Math.round((afterEntries.length / beforeEntries.length) * 100)))
+    : 65;
+  const beforeFill = avgBeforeValue !== null ? Math.max(0, Math.min(100, (avgBeforeValue / 5) * 100)) : 0;
+  const afterFill = avgAfterValue !== null ? Math.max(0, Math.min(100, (avgAfterValue / 5) * 100)) : 0;
 
   const bodyHtml = `
-    <div style="display: flex; justify-content: center; gap: var(--space-2xl); flex-wrap: wrap; margin-bottom: var(--space-2xl);">
-      <div class="stat">
-        <div class="stat__value">${beforeEntries.length}</div>
-        <div class="stat__label">Respuestas</div>
+    <div class="module-analytics">
+      <section class="module-analytics__hero">
+        <div class="module-analytics__eyebrow badge badge--gold">Análisis del módulo</div>
+
+        <div class="module-analytics__identity">
+          <div class="module-analytics__glyph" aria-hidden="true">${tool.letter}</div>
+          <div class="module-analytics__identity-copy">
+            <h3 class="module-analytics__title">${tool.name}</h3>
+            <p class="module-analytics__subtitle">${tool.greek} · ${tool.verb}</p>
+          </div>
+        </div>
+
+        <div class="module-analytics__overview">
+          <article class="module-analytics__ring" style="--coverage: ${coverage};">
+            <div class="module-analytics__ring-core">
+              <span class="module-analytics__ring-label">Respuestas totales</span>
+              <strong class="module-analytics__ring-value">${totalResponses}</strong>
+              <span class="module-analytics__ring-caption">${coverage}% cobertura</span>
+            </div>
+          </article>
+
+          <div class="module-analytics__bars">
+            <article class="module-analytics__bar-card">
+              <div class="module-analytics__bar-head">
+                <span class="module-analytics__bar-label">Promedio antes</span>
+                <span class="module-analytics__bar-value">${avgBefore}</span>
+              </div>
+              <div class="module-analytics__bar-track">
+                <div class="module-analytics__bar-fill" style="width: ${beforeFill}%;"></div>
+              </div>
+            </article>
+
+            <article class="module-analytics__bar-card">
+              <div class="module-analytics__bar-head">
+                <span class="module-analytics__bar-label">Promedio después</span>
+                <span class="module-analytics__bar-value" style="color: ${deltaColor};">${avgAfter}</span>
+              </div>
+              <div class="module-analytics__bar-track">
+                <div class="module-analytics__bar-fill module-analytics__bar-fill--accent" style="width: ${afterFill}%;"></div>
+              </div>
+            </article>
+
+            <article class="module-analytics__delta card">
+              <span class="module-analytics__delta-label">Cambio</span>
+              <span class="module-analytics__delta-value" style="color: ${deltaColor};">${avgDelta}</span>
+              <span class="module-analytics__delta-helper">Comparativa entre antes y después</span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      ${beforeEntries.length > 0 ? `
+      <div class="module-analytics__panels">
+        <section class="analytics-panel card">
+          <div class="analytics-panel__header">
+            <h4>Distribución antes</h4>
+            <span class="analytics-panel__count">${beforeEntries.length} respuestas</span>
+          </div>
+          ${renderDistribution(beforeEntries)}
+        </section>
+
+        ${afterEntries.length > 0 ? `
+        <section class="analytics-panel card">
+          <div class="analytics-panel__header">
+            <h4>Distribución después</h4>
+            <span class="analytics-panel__count">${afterEntries.length} respuestas</span>
+          </div>
+          ${renderDistribution(afterEntries)}
+        </section>
+        ` : `
+        <section class="analytics-panel card">
+          <div class="empty-state">
+            <div class="empty-state__icon">Γ</div>
+            <p class="empty-state__text">Esperando respuestas del cierre...</p>
+          </div>
+        </section>
+        `}
       </div>
-      <div class="stat">
-        <div class="stat__value">${avgBefore}</div>
-        <div class="stat__label">Promedio antes</div>
+      ` : `
+      <div class="empty-state card card--elevated">
+        <div class="empty-state__icon">Γ</div>
+        <p class="empty-state__text">Esperando respuestas de los estudiantes...</p>
       </div>
-      <div class="stat">
-        <div class="stat__value">${avgAfter}</div>
-        <div class="stat__label">Promedio después</div>
-      </div>
+      `}
     </div>
 
-    ${beforeEntries.length > 0 ? `
-    <div class="card" style="margin-bottom: var(--space-lg);">
-      <h4 style="margin-bottom: var(--space-md);">Distribución — Antes</h4>
-      ${renderDistribution(beforeEntries)}
+    <div class="module-analytics__footer">
+      <p class="module-analytics__footer-copy">Esperando respuestas de los estudiantes...</p>
+      <button class="btn btn--ghost" id="gnosis-refresh">
+        ↻ Actualizar datos
+      </button>
     </div>
-    ` : `
-    <div class="empty-state">
-      <div class="empty-state__icon">Γ</div>
-      <p class="empty-state__text">Esperando respuestas de los estudiantes...</p>
-    </div>
-    `}
-
-    ${afterEntries.length > 0 ? `
-    <div class="card">
-      <h4 style="margin-bottom: var(--space-md);">Distribución — Después</h4>
-      ${renderDistribution(afterEntries)}
-    </div>
-    ` : ''}
-
-    <button class="btn btn--ghost btn--full" id="gnosis-refresh" style="margin-top: var(--space-lg);">
-      ↻ Actualizar datos
-    </button>
   `;
 
   return renderToolLayout(tool, bodyHtml);
@@ -187,12 +256,14 @@ function renderDistribution(entries) {
   const labels = ['1', '2', '3', '4', '5'];
 
   return `
-    <div style="display: flex; align-items: flex-end; gap: var(--space-sm); height: 120px; padding: var(--space-sm);">
+    <div class="analytics-chart">
       ${counts.map((c, i) => `
-        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: var(--space-xs);">
-          <span style="font-size: var(--text-sm); font-weight: 600;">${c}</span>
-          <div style="width: 100%; background: var(--gold); border-radius: var(--radius-sm); height: ${(c / max) * 80}px; min-height: 4px; transition: height 0.5s ease;"></div>
-          <span style="font-size: var(--text-xs);">${labels[i]}</span>
+        <div class="analytics-chart__item">
+          <span class="analytics-chart__count">${c}</span>
+          <div class="analytics-chart__track">
+            <div class="analytics-chart__bar" style="height: ${(c / max) * 100}%;"></div>
+          </div>
+          <span class="analytics-chart__label">${labels[i]}</span>
         </div>
       `).join('')}
     </div>

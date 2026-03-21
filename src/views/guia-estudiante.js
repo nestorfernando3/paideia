@@ -14,7 +14,8 @@ export function renderGuiaEstudiante() {
         <div class="guide-student-card__header">
           <span class="guide-student-card__letter">${tool.letter}</span>
           <div>
-            <strong>${tool.name}</strong>
+            <strong class="guide-student-card__title">${tool.name}</strong>
+            <span class="guide-student-card__subtitle">${tool.greek}</span>
             <span class="guide-student-card__phase">${tool.phaseLabel}</span>
           </div>
         </div>

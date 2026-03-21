@@ -7,6 +7,8 @@ import { renderHeader } from '../components/header.js';
 import { TOOLS } from '../components/toolCard.js';
 
 export function renderGuiaDocente() {
+    const TOOL_NAMES = Object.fromEntries(TOOLS.map(tool => [tool.id, tool.name]));
+
     const toolGuides = TOOLS.map(tool => {
         const tips = TOOL_TIPS[tool.id] || {};
         return `
@@ -14,7 +16,8 @@ export function renderGuiaDocente() {
         <div class="guide-section__header">
           <span class="guide-section__letter">${tool.letter}</span>
           <div>
-            <h3 class="guide-section__title">${tool.name} <span class="text-greek">${tool.greek}</span></h3>
+            <h3 class="guide-section__title">${tool.name}</h3>
+            <p class="guide-section__subtitle text-greek">${tool.greek}</p>
             <span class="badge badge--${PHASE_BADGES[tool.phase]}">${tool.phaseLabel}</span>
           </div>
         </div>
@@ -97,19 +100,19 @@ export function renderGuiaDocente() {
             <div class="flow-diagram">
               <div class="flow-step flow-step--before">
                 <div class="flow-step__phase">Antes de la clase</div>
-                <div class="flow-step__tools">Gnosis + Eikasia</div>
+                <div class="flow-step__tools">${TOOL_NAMES.gnosis} + ${TOOL_NAMES.eikasia}</div>
                 <p class="flow-step__desc">Los estudiantes evalúan su conocimiento previo y formulan hipótesis.</p>
               </div>
               <div class="flow-arrow">→</div>
               <div class="flow-step flow-step--during">
                 <div class="flow-step__phase">Durante la clase</div>
-                <div class="flow-step__tools">Aporia + Noesis</div>
+                <div class="flow-step__tools">${TOOL_NAMES.aporia} + ${TOOL_NAMES.noesis}</div>
                 <p class="flow-step__desc">Monitorea comprensión en tiempo real e identifica dudas.</p>
               </div>
               <div class="flow-arrow">→</div>
               <div class="flow-step flow-step--after">
                 <div class="flow-step__phase">Después de la clase</div>
-                <div class="flow-step__tools">Methexis + Logos + Anamnesis</div>
+                <div class="flow-step__tools">${TOOL_NAMES.methexis} + ${TOOL_NAMES.logos} + ${TOOL_NAMES.anamnesis}</div>
                 <p class="flow-step__desc">Los estudiantes reflexionan, conectan y sintetizan.</p>
               </div>
             </div>
