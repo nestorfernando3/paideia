@@ -12,6 +12,7 @@ Todas las actualizaciones notables de este proyecto serán documentadas en este 
 - Los módulos ahora muestran el título funcional en español y el nombre griego como subtítulo secundario, para una lectura más inmediata.
 - Se integraron los recursos visuales entregados por diseño, incluido el nuevo logo de Paideia, con una línea editorial marfil/oro más consistente.
 - Se ajustó la experiencia móvil en home, sesión activa y Gnosis para mantener legibilidad, jerarquía y botones táctiles claros en pantallas estrechas.
+- Se corrigió la resolución del logo y de los assets públicos para que funcionen correctamente bajo el subpath `/paideia/` y en el entorno de Electron.
 
 ## [1.4.0] - 2026-03-10
 

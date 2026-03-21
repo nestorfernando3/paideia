@@ -9,6 +9,7 @@ import { backend } from '../utils/backend.js';
 export function renderHeader() {
   const session = getCurrentSession();
   const role = getCurrentRole();
+  const logoUrl = `${import.meta.env.BASE_URL}paideia-logo.png`;
 
   let sessionHtml = '';
   if (session) {
@@ -39,7 +40,7 @@ export function renderHeader() {
     <header class="header">
       <a class="header__brand" href="#${homeHash}">
         <span class="brand-mark header__logo" aria-hidden="true">
-          <img src="/paideia-logo.png" alt="" />
+          <img src="${logoUrl}" alt="Logo de Paideia" decoding="async" />
         </span>
         <div style="display: flex; flex-direction: column; gap: 2px;">
           <div style="display: flex; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
